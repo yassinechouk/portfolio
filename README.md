@@ -43,10 +43,14 @@ Edit only `src/content/index.ts`: name, headline, bio, links, skill groups and p
 
 ## Changing the accent color
 
-Two places must match:
+These places carry the colour and must match:
 
-1. `--accent` in `src/styles/tokens.css`
+1. `--accent` in `src/styles/tokens.css` (all CSS derives from it, including tints via `color-mix`)
 2. `ACCENT` in `src/scene/chip/geometry.ts` (the 3D scene reads this constant)
+3. `public/favicon.svg` (the colour is hard-coded as `#00e5ff` in the SVG)
+4. `public/og-image.png` (a raster image; regenerate it)
+
+`theme-color` in `index.html` is the page background (`#05080d`), not the accent, so it does not change with the accent.
 
 Default is `#00e5ff`.
 
@@ -65,11 +69,16 @@ CI (`.github/workflows/ci.yml`) runs lint, typecheck, unit tests, build and e2e 
 
 `.github/workflows/deploy.yml` builds and deploys to GitHub Pages on every push to `main` (or manually via "Run workflow"). One-time setup: in the repo go to Settings, Pages, and set Source to "GitHub Actions". The site is served at https://yassinechouk.github.io/portfolio/.
 
-For a custom domain, set `base: '/'` in `vite.config.ts` and update `og:url` and `og:image` in `index.html`.
+For a custom domain:
+
+- Set `base: '/'` in `vite.config.ts` and configure the custom domain (CNAME) in the repo's Settings, Pages.
+- Update `og:url` and `og:image` in `index.html`.
+- `playwright.config.ts` and `e2e/smoke.spec.ts` hard-code `/portfolio/`; update them after any base change.
+- The title, description and Open Graph text in `index.html` are personal text too; edit them for your own name and role.
 
 ## Before launch
 
-- Replace every `TODO(owner)` marker in `src/content/index.ts` (`grep -rn "TODO(owner)" src`): headline, bio, GitHub and LinkedIn links, skills, projects.
+- Replace every `TODO(owner)` marker in `src/content/index.ts` (`grep -rn "TODO(owner)" src/content`): headline, bio, GitHub and LinkedIn links, skills, projects. The deploy workflow refuses to build while any `TODO(owner)` remains in `src/content`, so the site will not publish until they are replaced.
 - Replace the placeholder `public/cv.pdf` with your real CV.
 - Decide on the accent color (see above).
 - Update `og:url` / `og:image` in `index.html` if the final URL differs.

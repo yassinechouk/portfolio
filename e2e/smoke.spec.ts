@@ -106,3 +106,11 @@ test('renders a canvas when WebGL is available', async ({ baseURL }) => {
     await browser.close()
   }
 })
+
+test('all five nav links fit within a 375px viewport', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 667 })
+  await page.goto('')
+  const box = await page.locator('nav a[href="#contact"]').boundingBox()
+  expect(box).not.toBeNull()
+  expect(box!.x + box!.width).toBeLessThanOrEqual(375)
+})

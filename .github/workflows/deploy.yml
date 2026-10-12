@@ -24,6 +24,15 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - name: Refuse to deploy with TODO(owner) placeholders
+        run: |
+          if grep -rn "TODO(owner)" src/content; then
+            echo "::error::TODO(owner) placeholders remain in src/content. Replace them before deploying."
+            exit 1
+          fi
       - run: npm run build
       - uses: actions/configure-pages@v6
       - uses: actions/upload-pages-artifact@v5

@@ -29,8 +29,11 @@ export function useScrollProgress(sectionIds: SectionId[]): void {
 
     window.addEventListener('scroll', schedule, { passive: true })
     window.addEventListener('resize', schedule)
+    const resizeObserver = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(schedule)
+    resizeObserver?.observe(document.body)
     schedule()
     return () => {
+      resizeObserver?.disconnect()
       window.removeEventListener('scroll', schedule)
       window.removeEventListener('resize', schedule)
       if (frame !== 0) cancelAnimationFrame(frame)

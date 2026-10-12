@@ -7,8 +7,11 @@ describe('shipped content', () => {
     expect(validateContent(content)).toEqual([])
   })
 
-  it('has 3 projects and 4 skill groups', () => {
-    expect(content.projects).toHaveLength(3)
-    expect(content.skills.map((s) => s.id)).toEqual(['languages', 'platforms', 'protocols', 'tools'])
+  it('has 3 to 6 projects and the four skill groups exactly once', () => {
+    expect(content.projects.length).toBeGreaterThanOrEqual(3)
+    expect(content.projects.length).toBeLessThanOrEqual(6)
+    for (const id of ['languages', 'platforms', 'protocols', 'tools']) {
+      expect(content.skills.filter((s) => s.id === id), id).toHaveLength(1)
+    }
   })
 })

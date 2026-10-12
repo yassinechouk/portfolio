@@ -1,5 +1,5 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/react'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from '../App'
 import { content } from '../content'
 import { getTour, setTour } from '../state/tourStore'
@@ -93,5 +93,78 @@ describe('project images', () => {
   it('detail image src is built from BASE_URL', () => {
     const { container } = render(<ProjectDetail project={withImage} />)
     expect(container.querySelector('img')!.getAttribute('src')).toBe(import.meta.env.BASE_URL + 'img/x.png')
+  })
+})
+
+describe('projects follow scroll', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it('defaults activeProjectId to the first project when the projects section becomes active', () => {
+    render(<App />)
+    expect(getTour().activeProjectId).toBeNull()
+    act(() => {
+      setTour({ activeSection: 'projects' })
+    })
+    expect(getTour().activeProjectId).toBe(content.projects[0].id)
+  })
+
+  it('does not override an existing selection when the projects section becomes active', () => {
+    render(<App />)
+    act(() => {
+      setTour({ activeProjectId: content.projects[1].id, activeSection: 'projects' })
+    })
+    expect(getTour().activeProjectId).toBe(content.projects[1].id)
+  })
+
+  it('sets activeProjectId to the card whose centre is nearest the viewport centre', () => {
+    const observed: Element[] = []
+    const targets = new Map<Element, IntersectionObserverCallback>()
+    vi.stubGlobal(
+      'IntersectionObserver',
+      class {
+        cb: IntersectionObserverCallback
+        constructor(cb: IntersectionObserverCallback) {
+          this.cb = cb
+        }
+        observe = (el: Element) => targets.set(el, this.cb)
+        unobserve = vi.fn()
+        disconnect = vi.fn()
+      },
+    )
+    render(<App />)
+    act(() => {
+      setTour({ activeSection: 'projects' })
+    })
+    const list = screen.getByRole('list', { name: /projects/i })
+    observed.push(...Array.from(list.children).filter((el) => targets.has(el)))
+    expect(observed).toHaveLength(content.projects.length)
+    const callback = targets.get(observed[0])!
+    const mid = window.innerHeight / 2
+    const entry = (target: Element, top: number) =>
+      ({
+        target,
+        isIntersecting: true,
+        boundingClientRect: { top, height: 100, bottom: top + 100 },
+      }) as unknown as IntersectionObserverEntry
+    act(() => {
+      callback(
+        [entry(observed[0], mid - 500), entry(observed[1], mid - 50), entry(observed[2], mid + 400)],
+        {} as IntersectionObserver,
+      )
+    })
+    expect(getTour().activeProjectId).toBe(content.projects[1].id)
+  })
+
+  it('clicking a card still selects it and opens its detail', () => {
+    render(<App />)
+    act(() => {
+      setTour({ activeSection: 'projects' })
+    })
+    const list = screen.getByRole('list', { name: /projects/i })
+    fireEvent.click(within(list).getAllByRole('button')[2])
+    expect(getTour().activeProjectId).toBe(content.projects[2].id)
+    expect(screen.getByRole('region', { name: /project details/i })).toBeInTheDocument()
   })
 })
