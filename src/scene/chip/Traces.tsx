@@ -80,14 +80,15 @@ function buildTraces(lite: boolean): BufferGeometry {
 /** Glowing traces on the package top, one per pin, with signal pulses travelling outward. */
 export function Traces({ lite, activePin, palette }: { lite: boolean; activePin: number | null; palette: ScenePalette }) {
   const geometry = useMemo(() => buildTraces(lite), [lite])
-  // Created once; a theme change only rewrites the colour and mode uniforms in the effect below.
-  const [uniforms] = useState(() => createPulseUniforms(palette.traces))
+  const opaque = palette.traceBlending === 'normal'
+  // Created once in the current theme's mode, so the first frame matches the blending; a theme
+  // change only rewrites the colour and mode uniforms in the effect below.
+  const [uniforms] = useState(() => createPulseUniforms(palette.traces, opaque))
   const material = useRef<ShaderMaterial>(null)
   const boot = useRef({ section: getTour().activeSection, start: -Infinity })
 
   useEffect(() => () => geometry.dispose(), [geometry])
 
-  const opaque = palette.traceBlending === 'normal'
   useEffect(() => {
     if (!material.current) return
     const u = material.current.uniforms as PulseUniforms

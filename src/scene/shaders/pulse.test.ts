@@ -17,4 +17,9 @@ describe('createPulseUniforms', () => {
     expect(u.uOpaque.value).toBe(0)
     expect(u.uAccent.value.getHexString()).toBe('00e5ff')
   })
+
+  it('honours the initial opaque flag, so the first frame already uses the right mode', () => {
+    expect(createPulseUniforms('#1fb3bf', true).uOpaque.value).toBe(1)
+    expect(createPulseUniforms('#00e5ff', false).uOpaque.value).toBe(0)
+  })
 })

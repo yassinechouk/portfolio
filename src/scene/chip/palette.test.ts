@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { THEME_BACKGROUND, type Theme } from '../../state/themeStore'
+import type { Theme } from '../../state/themeStore'
 import { contrastRatio } from '../../styles/contrast'
-import { readTokens } from '../../test/tokens'
 import { scenePalette } from './palette'
 
 const THEMES: Theme[] = ['light', 'dark']
@@ -23,14 +22,44 @@ describe('scenePalette', () => {
     expect(scenePalette(theme).dieBlocks).toHaveLength(6)
   })
 
-  it.each(THEMES)('the %s accent is >= 3:1 against the page background', (theme) => {
-    expect(contrastRatio(scenePalette(theme).accent, THEME_BACKGROUND[theme])).toBeGreaterThanOrEqual(3)
+  it('carries only colours the scene draws (no unused page accent/background)', () => {
+    for (const theme of THEMES) {
+      expect(scenePalette(theme)).not.toHaveProperty('accent')
+      expect(scenePalette(theme)).not.toHaveProperty('background')
+    }
   })
 
-  it.each(THEMES)('the %s scene accent and background match tokens.css', (theme) => {
-    const tokens = readTokens()[theme]
-    expect(scenePalette(theme).accent).toBe(tokens['--accent'].toLowerCase())
-    expect(scenePalette(theme).background).toBe(tokens['--bg'].toLowerCase())
+  it.each(THEMES)('%s: traces, the lit pin and the pins keep >= 3:1 on the package top they are drawn on', (theme) => {
+    const p = scenePalette(theme)
+    for (const key of ['traces', 'pinHighlight', 'pins'] as const) {
+      expect(contrastRatio(p[key], p.packageBody), key).toBeGreaterThanOrEqual(3)
+    }
+  })
+
+  it.each(THEMES)('%s: block edges keep >= 3:1 on every block', (theme) => {
+    const p = scenePalette(theme)
+    for (const block of p.dieBlocks) expect(contrastRatio(p.dieEdge, block), block).toBeGreaterThanOrEqual(3)
+  })
+
+  it.each(THEMES)('%s: each die block stands out >= 3:1 from the die base, by its fill or its edge', (theme) => {
+    const p = scenePalette(theme)
+    for (const block of p.dieBlocks) {
+      const best = Math.max(contrastRatio(block, p.dieBase), contrastRatio(p.dieEdge, p.dieBase))
+      expect(best, block).toBeGreaterThanOrEqual(3)
+    }
+  })
+
+  it('light: the drawn colours are distinct and the active block is >= 3:1 on the die base', () => {
+    const p = scenePalette('light')
+    const drawn = [p.traces, p.pinHighlight, p.pins, p.packageBody, p.dieBase, p.dieBlockActive, ...p.dieBlocks]
+    expect(new Set(drawn.map((c) => c.toLowerCase())).size).toBe(drawn.length)
+    expect(contrastRatio(p.dieBlockActive, p.dieBase)).toBeGreaterThanOrEqual(3)
+  })
+
+  it('dark: the active block is lit by its glow (same body colour, stronger emissive)', () => {
+    const p = scenePalette('dark')
+    expect(p.dieGlowActive).toBeGreaterThan(p.dieGlowIdle)
+    expect(new Set([p.traces, p.pins, p.packageBody, p.dieBase, p.dieBlocks[0]]).size).toBe(5)
   })
 
   it.each(THEMES)('the %s engraved label is readable on the package (>= 3:1)', (theme) => {
@@ -40,7 +69,7 @@ describe('scenePalette', () => {
 
   it('the dark palette keeps the original scene colours', () => {
     const p = scenePalette('dark')
-    expect(p.accent).toBe('#00e5ff')
+    expect(p.traces).toBe('#00e5ff')
     expect(p.packageBody).toBe('#15191f')
     expect(p.packageDot).toBe('#2a3038')
     expect(p.pins).toBe('#9aa3ad')

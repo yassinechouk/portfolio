@@ -21,8 +21,9 @@ function SunIcon() {
 export default function ThemeToggle() {
   const theme = useTheme()
   const next = theme === 'light' ? 'dark' : 'light'
+  const label = `Switch to ${next} theme`
   return (
-    <button type="button" className="theme-toggle" aria-label={`Switch to ${next} theme`} onClick={toggleTheme}>
+    <button type="button" className="theme-toggle" aria-label={label} title={label} onClick={toggleTheme}>
       {next === 'dark' ? <MoonIcon /> : <SunIcon />}
     </button>
   )

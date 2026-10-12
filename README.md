@@ -78,7 +78,7 @@ The site always opens in the **light** theme, whatever the visitor's system pref
 - `index.html` ships `<html data-theme="light">` and the light `theme-color`, so there is no flash. `src/main.tsx` calls `startThemeSync()`, which keeps `data-theme` and the `theme-color` meta in step with the store.
 - CSS colours live only in `src/styles/tokens.css`: a shared `:root` block (fonts, radius, spacing), a light block (`:root, :root[data-theme='light']`) and a dark block (`:root[data-theme='dark']`). Every colour in `global.css` is a `var(--token)` (or a `color-mix` of one); a test fails on any raw colour outside `tokens.css`, on a token missing from either theme, or on a text pair under 4.5:1 (graphics under 3:1).
 - The 3D scene takes its colours from `src/scene/chip/palette.ts` (`scenePalette(theme)`): package, pins, die blocks, traces, label and lights for each theme. The scene reads the theme from the store and updates its materials in place; the camera path and the package fade are the same in both themes.
-- Page backgrounds are in `THEME_BACKGROUND` in `src/state/themeStore.ts` (the `theme-color` value); a test keeps them equal to `--bg` in `tokens.css`, and the scene accent equal to `--accent`.
+- Page backgrounds are in `THEME_BACKGROUND` in `src/state/themeStore.ts` (the `theme-color` value); a test keeps them equal to `--bg` in `tokens.css`.
 - Images per theme: the static fallback is `public/chip-fallback-light.png` in light and `public/chip-fallback.png` in dark (both are screenshots of the real scene at the hero stop); `public/og-image.png` (the link preview) shows the light chip.
 
 ## Changing the accent color
@@ -86,7 +86,7 @@ The site always opens in the **light** theme, whatever the visitor's system pref
 These places carry the colour and must match:
 
 1. `--accent` in `src/styles/tokens.css`, once per theme (all CSS derives from it, including tints via `color-mix`). Light is a deep teal (`#006d79`, readable on white), dark is cyan (`#00e5ff`).
-2. `accent` (and the related trace, highlight and edge colours) for each theme in `src/scene/chip/palette.ts`; a test checks it against `--accent`.
+2. The accent-derived scene colours (traces, lit pin, die edges and glow, rim light) for each theme in `src/scene/chip/palette.ts` (`DARK_ACCENT` / `LIGHT_ACCENT`); a test checks that each one keeps 3:1 against the surface it is drawn on.
 3. `public/favicon.svg` (cyan `#00e5ff` on a dark square, which reads on light and dark tabs alike; hard-coded in the SVG)
 4. `public/og-image.png` (a raster image of the light theme; regenerate it)
 

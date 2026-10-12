@@ -1,5 +1,5 @@
 import { Canvas } from '@react-three/fiber'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useTheme } from '../state/themeStore'
 import { waypoints } from './cameraPath'
 import { Chip } from './chip/Chip'
@@ -14,7 +14,8 @@ const isLite = (): boolean =>
 const isHidden = (): boolean => typeof document !== 'undefined' && document.hidden
 
 function Lights() {
-  const p = scenePalette(useTheme())
+  const theme = useTheme()
+  const p = useMemo(() => scenePalette(theme), [theme])
   return (
     <>
       <ambientLight intensity={p.ambientLight} />

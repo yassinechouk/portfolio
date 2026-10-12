@@ -13,6 +13,7 @@ describe('ThemeToggle', () => {
     render(<ThemeToggle />)
     const button = screen.getByRole('button', { name: 'Switch to dark theme' })
     expect(button).toHaveAttribute('type', 'button')
+    expect(button).toHaveAttribute('title', 'Switch to dark theme')
     const svg = button.querySelector('svg')
     expect(svg).not.toBeNull()
     expect(svg).toHaveAttribute('aria-hidden', 'true')

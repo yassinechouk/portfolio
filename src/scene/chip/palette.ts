@@ -1,11 +1,7 @@
-import { THEME_BACKGROUND, type Theme } from '../../state/themeStore'
+import type { Theme } from '../../state/themeStore'
 
 /** Every colour (and the few light levels) the 3D scene uses, per theme. Pure data. */
 export type ScenePalette = {
-  /** Page colour behind the transparent canvas (`--bg`). */
-  background: string
-  /** Matches the CSS `--accent` of the theme. */
-  accent: string
   /** Trace ribbons and their signal pulses. */
   traces: string
   /** `additive` glows on a dark page; `normal` keeps the traces solid teal on a light one. */
@@ -43,8 +39,6 @@ const LIGHT_ACCENT = '#006d79'
 const PALETTES: Record<Theme, ScenePalette> = {
   // The original look: a near-black chip glowing cyan on a dark page.
   dark: {
-    background: THEME_BACKGROUND.dark,
-    accent: DARK_ACCENT,
     traces: DARK_ACCENT,
     traceBlending: 'additive',
     packageBody: '#15191f',
@@ -71,8 +65,6 @@ const PALETTES: Record<Theme, ScenePalette> = {
   // A graphite package with silver leads and solid teal traces on a cool light page; the die
   // blocks are light silicon tints so each one reads on its own, the active one turns teal.
   light: {
-    background: THEME_BACKGROUND.light,
-    accent: LIGHT_ACCENT,
     traces: '#1fb3bf',
     traceBlending: 'normal',
     packageBody: '#2b3138',

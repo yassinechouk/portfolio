@@ -60,12 +60,13 @@ export type PulseUniforms = {
   uOpaque: { value: number }
 }
 
-export function createPulseUniforms(accent: string): PulseUniforms {
+/** `opaque` picks the light-theme mode (normal blending) from the very first frame. */
+export function createPulseUniforms(accent: string, opaque = false): PulseUniforms {
   return {
     uTime: { value: 0 },
     uAccent: { value: new Color(accent) },
     uActive: { value: -1 },
     uBoot: { value: -1 },
-    uOpaque: { value: 0 },
+    uOpaque: { value: opaque ? 1 : 0 },
   }
 }
