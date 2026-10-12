@@ -142,6 +142,6 @@ export const content: Content = {
   contact: {
     email: 'yassine.chouk@insat.ucar.tn',
     phone: '+216 21 691 995',
-    form: { accessKey: 'TODO(owner): web3forms access key' },
+    form: { accessKey: 'bbcf6253-396f-4eff-a601-5e511839eaff' },
   },
 }

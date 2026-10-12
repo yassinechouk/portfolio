@@ -1,10 +1,17 @@
 import { describe, expect, it } from 'vitest'
 import { content } from './index'
+import { isPlaceholderKey } from '../sections/contactSubmit'
 import { validateContent } from './validate'
 
 describe('shipped content', () => {
   it('validates', () => {
     expect(validateContent(content)).toEqual([])
+  })
+
+  it('ships a real Web3Forms access key (not a placeholder)', () => {
+    const key = content.contact.form.accessKey
+    expect(isPlaceholderKey(key)).toBe(false)
+    expect(key).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/)
   })
 
   it('has 3 to 6 projects and at least 1 experience', () => {

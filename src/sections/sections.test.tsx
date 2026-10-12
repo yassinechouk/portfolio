@@ -76,6 +76,16 @@ describe('sections', () => {
     )
   })
 
+  it('the shipped Contact renders the real form, not the Email me fallback', () => {
+    const { container } = render(<App />)
+    const c = within(container.querySelector('section#contact') as HTMLElement)
+    expect(c.getByLabelText('Name')).toBeInTheDocument()
+    expect(c.getByLabelText('Email')).toBeInTheDocument()
+    expect(c.getByLabelText('Message')).toBeInTheDocument()
+    expect(c.getByText('Messages are sent to my inbox through Web3Forms.')).toBeInTheDocument()
+    expect(c.queryByRole('link', { name: 'Email me' })).toBeNull()
+  })
+
   it('clicking a skill group sets activeSkillGroup', () => {
     render(<App />)
     const group = content.skills[2]

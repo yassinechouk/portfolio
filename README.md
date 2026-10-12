@@ -65,11 +65,11 @@ Add the file as `public/profile.jpg` and set `photo: 'profile.jpg'` in `about` i
 
 ### Contact form (Web3Forms)
 
-1. Create a free access key for `yassine.chouk@insat.ucar.tn` at https://web3forms.com.
-2. Paste it into `contact.form.accessKey` in `src/content/index.ts`.
-3. Run `npm run test:e2e` locally once: the contact e2e switches to the mocked real-form branch automatically.
+The access key for `yassine.chouk@insat.ucar.tn` is configured in `contact.form.accessKey` in `src/content/index.ts`. It is a public identifier by design (Web3Forms keys are meant for client-side use), so it is fine to commit. The Contact section shows the form; with a placeholder key (for example `TODO(owner)` text) it falls back to an `Email me` button, and the deploy workflow refuses to publish while any `TODO(owner)` marker remains in `src/content`.
 
-Until a real key is set, the Contact section shows an `Email me` button instead of the form, and the deploy workflow refuses to publish because the placeholder carries a `TODO(owner)` marker. The key is a public identifier by design (Web3Forms keys are meant for client-side use).
+- In the Web3Forms dashboard, restrict the form's allowed website to `yassinechouk.github.io` (add `localhost` too if you want to test the live form locally).
+- After publishing, send yourself one test message from the live site (or localhost) and check your inbox and spam folder.
+- `npm run test:e2e` never calls Web3Forms: the contact test intercepts `api.web3forms.com` with a mocked route (CORS preflight included).
 
 ## Theme
 
@@ -118,8 +118,8 @@ For a custom domain:
 
 ## Before launch
 
-- [ ] Resolve every `TODO(owner)` marker in `src/content/index.ts` (`grep -rn "TODO(owner)" src/content`): the Web3Forms `accessKey`. The deploy workflow refuses to build while any remains in `src/content`.
-- [ ] After pasting the Web3Forms key, run `npm run test:e2e` locally once: the contact e2e switches to the mocked real-form branch automatically.
+- [ ] Restrict the Web3Forms form to `yassinechouk.github.io` in its dashboard, then send yourself one test message from the live site and check your inbox (and spam folder).
+- [ ] Keep `grep -rn "TODO(owner)" src/content` empty: the deploy workflow refuses to build while any marker remains.
 - [ ] Add the profile photo (`public/profile.jpg`, `about.photo`).
 - [ ] Make the repository public (or choose another host).
 - [ ] Decide on the accent colours and the light/dark palettes (see Theme and Changing the accent color).
