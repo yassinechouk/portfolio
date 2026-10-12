@@ -1,5 +1,5 @@
 import { useId, useRef, useState, type FormEvent } from 'react'
-import { isPlaceholderKey, submitForm, validateForm, type FormErrors, type FormValues } from './contactForm'
+import { isPlaceholderKey, submitForm, validateForm, type FormErrors, type FormValues } from './contactSubmit'
 
 type Status = 'idle' | 'sending' | 'success' | 'error'
 type Props = { accessKey: string; email: string; fetchImpl?: typeof fetch }

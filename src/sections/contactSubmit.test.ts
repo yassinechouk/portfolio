@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { isPlaceholderKey, submitForm, validateForm, type FormValues } from './contactForm'
+import { isPlaceholderKey, submitForm, validateForm, type FormValues } from './contactSubmit'
 
 const valid: FormValues = {
   name: 'Ada',

@@ -1,6 +1,6 @@
 import { type Browser, expect, test } from '@playwright/test'
 import { content } from '../src/content'
-import { isPlaceholderKey } from '../src/sections/contactForm'
+import { isPlaceholderKey } from '../src/sections/contactSubmit'
 
 const { about, contact, experience, projects } = content
 
