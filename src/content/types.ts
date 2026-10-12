@@ -5,7 +5,8 @@ export type Project = {
   title: string
   summary: string
   tags: string[]
-  role: string
+  role?: string
+  featured?: boolean
   metrics: string[]
   media: Media[]
   demoUrl?: string

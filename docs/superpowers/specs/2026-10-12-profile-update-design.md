@@ -105,3 +105,13 @@ The CAN monitoring project, a blog, a CMS, a custom domain, making the repo publ
 - Add a profile photo as `public/profile.jpg` and set `about.photo`.
 - Review the draft copy and the Trackify role wording.
 - Make the repo public (or choose other hosting) before publishing.
+
+## Amendment: featured projects
+
+Approved by the owner after the first implementation.
+
+- **Experience.** The oscilloscope picture is removed from the Qehna LAB entry and `public/experience/qehna-deadband.webp` is deleted. `ExperienceItem.image` stays as an optional field, so a future entry can show a picture.
+- **Projects, two tiers.** FreeRTOS Inspector and the Bootloader are featured: big cards (two columns from about 900 px, stacked on phones) with one picture that opens in the lightbox, a short two-sentence description, the proof chips, tags, a `Role:` line and a repository link. Trackify and AQUA GENIUS are compact rows under "More projects": title, one line, three tags and a link; no picture, no metrics, no role. The detail panel and the gallery are gone. Scroll-driven selection stays for all four items (accent border and `aria-current="true"`), so the lit pin still follows the four projects. Every image reserves its space with `aspect-ratio`, so nothing shifts the page when it loads.
+- **Content model.** `Project` gains `featured?: boolean`; `role` becomes optional. Validation: 1 to 3 featured projects; a featured project has exactly one `media` item and 2 to 4 `metrics`; a compact project has no media and at most 4 metrics (shipped as none).
+- **Images deleted** (originals stay in the owner's repos): `inspector-fault.webp`, `bench.webp`, `memory-layout.webp`, the Trackify `prototype.webp` and `concept.webp` (the concept art contained a fictional name and a phone number) and the AQUA GENIUS `prototype.webp`. Only `inspector.webp` and `arch.webp` remain, and a test fails if an image is shipped that content does not use.
+- **Open items.** The Trackify role TODO is gone with the role line, so the deploy gate now trips only on the Web3Forms key.

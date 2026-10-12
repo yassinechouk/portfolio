@@ -14,6 +14,11 @@ const project = (id: string, overrides: Partial<Project> = {}): Project => ({
   ...overrides,
 })
 
+const cover = { src: 'a.webp', alt: 'alt', caption: 'cap' }
+
+const featured = (id: string, overrides: Partial<Project> = {}): Project =>
+  project(id, { featured: true, media: [cover], ...overrides })
+
 const experience = (id: string): ExperienceItem => ({
   id,
   role: 'Intern',
@@ -49,7 +54,7 @@ const valid = (): Content => ({
   },
   skills: skills(),
   experience: [experience('e1')],
-  projects: [project('a'), project('b'), project('c')],
+  projects: [featured('a'), project('b', { metrics: [] }), project('c', { metrics: [] })],
   contact: { email: 'me@example.com', phone: '+216 21 691 995', form: { accessKey: 'key' } },
 })
 
@@ -68,7 +73,8 @@ describe('validateContent', () => {
 
   it('rejects more than 6 projects', () => {
     const c = valid()
-    c.projects = ['a', 'b', 'c', 'd', 'e', 'f', 'g'].map((id) => project(id))
+    c.projects = ['a', 'b', 'c', 'd', 'e', 'f', 'g'].map((id) => featured(id))
+    c.projects.forEach((p, i) => { if (i > 0) { p.featured = false; p.media = [] } })
     const errors = validateContent(c)
     expect(errors).toHaveLength(1)
     expect(errors[0]).toContain('projects')
@@ -76,7 +82,7 @@ describe('validateContent', () => {
 
   it('rejects duplicate project ids', () => {
     const c = valid()
-    c.projects[1] = project('a')
+    c.projects[1] = project('a', { metrics: [] })
     const errors = validateContent(c)
     expect(errors).toHaveLength(1)
     expect(errors[0]).toContain('id')
@@ -84,7 +90,7 @@ describe('validateContent', () => {
 
   it('rejects non-https repoUrl', () => {
     const c = valid()
-    c.projects[0] = project('a', { repoUrl: 'http://github.com/example/a' })
+    c.projects[0] = featured('a', { repoUrl: 'http://github.com/example/a' })
     const errors = validateContent(c)
     expect(errors).toHaveLength(1)
     expect(errors[0]).toContain('repoUrl')
@@ -130,36 +136,86 @@ describe('validateContent', () => {
     expect(errors.every((e) => e.includes('skills'))).toBe(true)
   })
 
-  it('rejects project metrics outside 2 to 4', () => {
+  it('rejects featured project metrics outside 2 to 4', () => {
     for (const metrics of [['one'], ['1', '2', '3', '4', '5']]) {
       const c = valid()
-      c.projects[0] = project('a', { metrics })
+      c.projects[0] = featured('a', { metrics })
       const errors = validateContent(c)
       expect(errors).toHaveLength(1)
       expect(errors[0]).toContain('metrics')
     }
   })
 
-  it('rejects more than 4 media', () => {
+  it('rejects zero featured projects', () => {
     const c = valid()
-    const m = { src: 'a.png', alt: 'alt', caption: 'cap' }
-    c.projects[0] = project('a', { media: [m, m, m, m, m] })
+    c.projects[0] = project('a', { metrics: [] })
+    const errors = validateContent(c)
+    expect(errors).toHaveLength(1)
+    expect(errors[0]).toContain('featured')
+  })
+
+  it('rejects more than 3 featured', () => {
+    const c = valid()
+    c.projects = ['a', 'b', 'c', 'd'].map((id) => featured(id))
+    const errors = validateContent(c)
+    expect(errors).toHaveLength(1)
+    expect(errors[0]).toContain('featured')
+  })
+
+  it('rejects a featured project without exactly one media', () => {
+    for (const media of [[], [cover, cover]]) {
+      const c = valid()
+      c.projects[0] = featured('a', { media })
+      const errors = validateContent(c)
+      expect(errors).toHaveLength(1)
+      expect(errors[0]).toContain('media')
+    }
+  })
+
+  it('rejects a featured project with fewer than 2 metrics', () => {
+    const c = valid()
+    c.projects[0] = featured('a', { metrics: ['one'] })
+    const errors = validateContent(c)
+    expect(errors).toHaveLength(1)
+    expect(errors[0]).toContain('metrics')
+  })
+
+  it('rejects media on a compact project', () => {
+    const c = valid()
+    c.projects[1] = project('b', { metrics: [], media: [cover] })
     const errors = validateContent(c)
     expect(errors).toHaveLength(1)
     expect(errors[0]).toContain('media')
   })
 
-  it('rejects media with empty alt or caption', () => {
+  it('accepts a compact project with no metrics', () => {
     const c = valid()
-    c.projects[0] = project('a', {
-      media: [
-        { src: 'a.png', alt: '', caption: 'cap' },
-        { src: 'b.png', alt: 'alt', caption: '' },
-      ],
-    })
+    expect(c.projects[1].metrics).toEqual([])
+    expect(validateContent(c)).toEqual([])
+  })
+
+  it('rejects compact project metrics above 4', () => {
+    const c = valid()
+    c.projects[1] = project('b', { metrics: ['1', '2', '3', '4', '5'] })
     const errors = validateContent(c)
-    expect(errors).toHaveLength(2)
-    for (const e of errors) expect(e).toContain('media')
+    expect(errors).toHaveLength(1)
+    expect(errors[0]).toContain('metrics')
+  })
+
+  it('rejects media with empty alt or caption', () => {
+    for (const media of [[{ src: 'a.webp', alt: '', caption: 'cap' }], [{ src: 'a.webp', alt: 'alt', caption: ' ' }]]) {
+      const c = valid()
+      c.projects[0] = featured('a', { media })
+      const errors = validateContent(c)
+      expect(errors).toHaveLength(1)
+      expect(errors[0]).toContain('media')
+    }
+  })
+
+  it('accepts a project without a role', () => {
+    const c = valid()
+    c.projects[1] = project('b', { metrics: [], role: undefined })
+    expect(validateContent(c)).toEqual([])
   })
 
   it('rejects a phone without a plus and digits', () => {
@@ -168,11 +224,5 @@ describe('validateContent', () => {
     const errors = validateContent(c)
     expect(errors).toHaveLength(1)
     expect(errors[0]).toContain('phone')
-  })
-
-  it('accepts a project with no media', () => {
-    const c = valid()
-    expect(c.projects[0].media).toEqual([])
-    expect(validateContent(c)).toEqual([])
   })
 })

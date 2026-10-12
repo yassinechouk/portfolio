@@ -5,8 +5,8 @@ A scroll-driven portfolio for Yassine Chouk, an embedded / IoT / systems enginee
 1. **Hero** - name, headline, links to the projects and the CV.
 2. **About** - bio, highlights, education, spoken languages and a profile photo slot (initials until a photo is added).
 3. **Skills** - six skill groups; each group lights up a block of the die.
-4. **Experience** - the two internships as a timeline, with outcomes, tags and an oscilloscope photo.
-5. **Projects** - four project cards; the selected one shows its summary, measured-result chips, a gallery and links. Gallery images open in a lightbox (Escape or Close dismisses it). The active project lights up a pin.
+4. **Experience** - the two internships as a timeline, with outcomes and tags (an entry can optionally carry one picture).
+5. **Projects** - two tiers. The two featured projects are big cards (two columns on desktop, stacked on phones) with one picture, a short description, measured-result chips, tags, a role line and a repository link; clicking the picture opens it in a lightbox (Escape or Close dismisses it). Under "More projects", the other two are compact rows with a title, one line, three tags and a link, and no picture. Whichever item is nearest the middle of the screen (or clicked or focused) is marked with an accent border, and it lights up a pin on the chip.
 6. **Contact** - email, phone, LinkedIn, GitHub, CV download and a query form.
 
 Stack: Vite, React 19, TypeScript, three.js via React Three Fiber and drei, Vitest + Testing Library, Playwright, oxlint.
@@ -48,13 +48,15 @@ Edit only `src/content/index.ts` (types are in `src/content/types.ts`). Content 
 - `about`: name, eyebrow, headline, tagline, bio `paragraphs`, `highlights`, `education`, `spokenLanguages`, `photo` and `links` (`cv`, `github`, `linkedin`).
 - `skills`: exactly six groups with the ids `languages`, `platforms`, `firmware`, `protocols`, `tools`, `testing`; each needs at least one item. The ids map to die blocks, so do not rename them.
 - `experience`: one entry per job with `role`, `organization`, `place`, `period`, `outcomes`, `tags`, optional `repoUrl` and optional `image` (`src`, `alt`, `caption`). Order is newest first.
-- `projects`: 3 to 6 entries, each with `summary`, `tags`, `role`, `repoUrl` and optional `demoUrl`. `metrics` are the proof chips: 2 to 4 short measured results. `media` is up to 4 images, each with `src`, `alt` and `caption`; the first one is the card cover.
+- `projects`: 3 to 6 entries, each with `summary`, `tags`, `repoUrl` and optional `demoUrl`, in the order they appear. 1 to 3 of them set `featured: true`; the rest are compact rows.
+  - A featured project has an optional `role` (shown as a `Role:` line), 2 to 4 `metrics` (the proof chips, short measured results) and exactly one `media` item (`src`, `alt`, `caption`), which is its picture.
+  - A compact project has no `media` (`media: []`), ships `metrics: []` (compact rows do not show them) and no `role`. Keep its `summary` to one line and its `tags` to three.
 - CV: replace `public/cv.pdf` (keep the filename, or change `about.links.cv`).
 
 ### Images
 
-- Put them under `public/` (project images in `public/projects/<project-id>/`, the experience image in `public/experience/`) and reference them by a path relative to `public/`, for example `projects/trackify/prototype.webp`. `src/content/assetUrl.ts` resolves the path against the deploy base. Absolute `https:` URLs are left untouched.
-- Use `.webp`, at most 1200 px wide and about 150 KB each.
+- Put them under `public/` (a featured project's picture in `public/projects/<project-id>/`, an optional experience image in `public/experience/`) and reference them by a path relative to `public/`, for example `projects/freertos-inspector/inspector.webp`. `src/content/assetUrl.ts` resolves the path against the deploy base. Absolute `https:` URLs are left untouched.
+- Only featured projects carry a picture (relative `.webp` under `public/projects/<id>/`, about 150 KB at most); compact projects have none. An Experience entry may optionally carry an `image` too. A test fails if an image is shipped that no content entry uses.
 - Every image needs descriptive `alt` text and a `caption` (validation rejects empty ones).
 
 ### Profile photo
@@ -108,10 +110,9 @@ For a custom domain:
 
 ## Before launch
 
-- [ ] Resolve every `TODO(owner)` marker in `src/content/index.ts` (`grep -rn "TODO(owner)" src/content`): the Trackify `role` (confirm it) and the Web3Forms `accessKey`. The deploy workflow refuses to build while any remains in `src/content`.
+- [ ] Resolve every `TODO(owner)` marker in `src/content/index.ts` (`grep -rn "TODO(owner)" src/content`): the Web3Forms `accessKey`. The deploy workflow refuses to build while any remains in `src/content`.
 - [ ] After pasting the Web3Forms key, run `npm run test:e2e` locally once: the contact e2e switches to the mocked real-form branch automatically.
 - [ ] Add the profile photo (`public/profile.jpg`, `about.photo`).
 - [ ] Make the repository public (or choose another host).
 - [ ] Decide on the accent color (see above).
-- [ ] Confirm `public/projects/trackify/concept.webp` contains no real personal data.
 - [ ] Update `og:url` / `og:image` in `index.html` if the final URL differs.

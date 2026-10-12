@@ -4,7 +4,8 @@ const MIN_PROJECTS = 3
 const MAX_PROJECTS = 6
 const MIN_METRICS = 2
 const MAX_METRICS = 4
-const MAX_MEDIA = 4
+const MIN_FEATURED = 1
+const MAX_FEATURED = 3
 const PHONE = /^\+\d[\d ]{6,}$/
 const SKILL_IDS: SkillGroupId[] = ['languages', 'platforms', 'firmware', 'protocols', 'tools', 'testing']
 
@@ -25,17 +26,31 @@ export function validateContent(c: Content): string[] {
     if (!p.repoUrl.startsWith('https://')) {
       errors.push(`projects["${p.id}"].repoUrl: must start with https://`)
     }
-    if (p.metrics.length < MIN_METRICS || p.metrics.length > MAX_METRICS) {
-      errors.push(`projects["${p.id}"].metrics: expected ${MIN_METRICS}-${MAX_METRICS}, got ${p.metrics.length}`)
-    }
-    if (p.media.length > MAX_MEDIA) {
-      errors.push(`projects["${p.id}"].media: at most ${MAX_MEDIA}, got ${p.media.length}`)
+    if (p.featured) {
+      if (p.metrics.length < MIN_METRICS || p.metrics.length > MAX_METRICS) {
+        errors.push(`projects["${p.id}"].metrics: featured needs ${MIN_METRICS}-${MAX_METRICS}, got ${p.metrics.length}`)
+      }
+      if (p.media.length !== 1) {
+        errors.push(`projects["${p.id}"].media: featured needs exactly 1, got ${p.media.length}`)
+      }
+    } else {
+      if (p.metrics.length > MAX_METRICS) {
+        errors.push(`projects["${p.id}"].metrics: at most ${MAX_METRICS}, got ${p.metrics.length}`)
+      }
+      if (p.media.length > 0) {
+        errors.push(`projects["${p.id}"].media: a compact project has none, got ${p.media.length}`)
+      }
     }
     p.media.forEach((m, i) => {
       if (m.alt.trim() === '' || m.caption.trim() === '') {
         errors.push(`projects["${p.id}"].media[${i}]: alt and caption must be non-empty`)
       }
     })
+  }
+
+  const featuredCount = c.projects.filter((p) => p.featured).length
+  if (featuredCount < MIN_FEATURED || featuredCount > MAX_FEATURED) {
+    errors.push(`projects: expected ${MIN_FEATURED}-${MAX_FEATURED} featured, got ${featuredCount}`)
   }
 
   for (const g of c.skills) {

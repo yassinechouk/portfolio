@@ -2,10 +2,11 @@ import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from '../App'
 import { content } from '../content'
+import type { Project } from '../content/types'
 import { getTour, setTour } from '../state/tourStore'
 import Experience from './Experience'
-import ProjectCard from './ProjectCard'
-import ProjectDetail from './ProjectDetail'
+import CompactProject from './CompactProject'
+import FeaturedProject from './FeaturedProject'
 
 beforeEach(() => {
   act(() => {
@@ -35,28 +36,6 @@ describe('sections', () => {
     expect(current).toHaveLength(1)
     expect(current[0]).toHaveAttribute('href', '#skills')
     expect(current[0]).toHaveAttribute('aria-current', 'location')
-  })
-
-  it('selecting a project by keyboard sets activeProjectId and shows its detail', () => {
-    render(<App />)
-    const project = content.projects[1]
-    const list = screen.getByRole('list', { name: /projects/i })
-    const button = within(list).getAllByRole('button')[1]
-    expect(button.tagName).toBe('BUTTON')
-    button.focus()
-    // Enter/Space on a focused button dispatch a click
-    fireEvent.click(button)
-    expect(getTour().activeProjectId).toBe(project.id)
-    const detail = screen.getByRole('region', { name: /project details/i })
-    expect(within(detail).getByText(project.summary)).toBeInTheDocument()
-    expect(within(detail).getByText(project.role)).toBeInTheDocument()
-    expect(within(detail).getByRole('link', { name: /repo/i })).toHaveAttribute('href', project.repoUrl)
-  })
-
-  it('a project without media renders its card without an img element', () => {
-    const project = { ...content.projects[0], media: [] }
-    const { container } = render(<ProjectCard project={project} selected={false} onSelect={() => {}} />)
-    expect(container.querySelector('img')).toBeNull()
   })
 
   it('the CV link href starts with import.meta.env.BASE_URL', () => {
@@ -124,6 +103,13 @@ describe('experience', () => {
     })
   })
 
+  it('the Qehna LAB card shows no picture', () => {
+    const { container } = render(<App />)
+    const section = container.querySelector('section#experience') as HTMLElement
+    expect(content.experience[0].image).toBeUndefined()
+    expect(section.querySelector('img')).toBeNull()
+  })
+
   it('omits the repo link and image when absent', () => {
     const bare = { ...content.experience[0], repoUrl: undefined, image: undefined }
     const { container } = render(<Experience items={[bare]} />)
@@ -158,20 +144,95 @@ describe('nav', () => {
   })
 })
 
-describe('project images', () => {
-  const withImage = {
-    ...content.projects[0],
-    media: [{ src: 'img/x.png', alt: 'X alt', caption: 'X caption' }],
-  }
+describe('project tiers', () => {
+  const featuredProjects = content.projects.filter((p) => p.featured)
+  const compactProjects = content.projects.filter((p) => !p.featured)
+  const card = (title: string) => screen.getByRole('heading', { name: title }).closest('article') as HTMLElement
 
-  it('card image src is built from BASE_URL', () => {
-    const { container } = render(<ProjectCard project={withImage} selected={false} onSelect={() => {}} />)
-    expect(container.querySelector('img')!.getAttribute('src')).toBe(import.meta.env.BASE_URL + 'img/x.png')
+  it('keeps the four projects in order, two featured then two compact', () => {
+    expect(content.projects.map((p) => p.id)).toEqual(['freertos-inspector', 'ota-bootloader', 'trackify', 'aqua-genius'])
+    expect(featuredProjects.map((p) => p.id)).toEqual(['freertos-inspector', 'ota-bootloader'])
+    expect(compactProjects.map((p) => p.id)).toEqual(['trackify', 'aqua-genius'])
   })
 
-  it('detail image src is built from BASE_URL', () => {
-    const { container } = render(<ProjectDetail project={withImage} />)
-    expect(container.querySelector('img')!.getAttribute('src')).toBe(import.meta.env.BASE_URL + 'img/x.png')
+  it('featured cards show title, description, metrics, tags, role, one picture and a repository link', () => {
+    render(<App />)
+    for (const p of featuredProjects) {
+      const c = within(card(p.title))
+      expect(c.getByText(p.summary)).toBeInTheDocument()
+      for (const metric of p.metrics) expect(c.getByText(metric)).toBeInTheDocument()
+      for (const tag of p.tags) expect(c.getByText(tag)).toBeInTheDocument()
+      expect(c.getByText(`Role:`)).toBeInTheDocument()
+      expect(c.getByText(p.role!)).toBeInTheDocument()
+      const imgs = c.getAllByRole('img')
+      expect(imgs).toHaveLength(1)
+      expect(imgs[0].getAttribute('src')).toBe(import.meta.env.BASE_URL + p.media[0].src)
+      expect(c.getByRole('link', { name: /repository/i })).toHaveAttribute('href', p.repoUrl)
+    }
+  })
+
+  it('compact rows show title, one line, three tags and a link, and no picture, metrics or role', () => {
+    render(<App />)
+    expect(screen.getByRole('heading', { name: 'More projects' })).toBeInTheDocument()
+    for (const p of compactProjects) {
+      const el = card(p.title)
+      const c = within(el)
+      expect(c.getByText(p.summary)).toBeInTheDocument()
+      expect(p.tags).toHaveLength(3)
+      for (const tag of p.tags) expect(c.getByText(tag)).toBeInTheDocument()
+      expect(c.getByRole('link', { name: /repository/i })).toHaveAttribute('href', p.repoUrl)
+      expect(el.querySelector('img')).toBeNull()
+      expect(el.querySelector('.proof-chips')).toBeNull()
+      expect(el).not.toHaveTextContent(/Role:/)
+    }
+  })
+
+  it('shows no detail panel or gallery any more', () => {
+    const { container } = render(<App />)
+    expect(container.querySelector('.project-detail, .gallery')).toBeNull()
+    expect(screen.queryByRole('region', { name: /project details/i })).toBeNull()
+  })
+
+  it('the first project is auto-selected on entering the section and only it is aria-current', () => {
+    const { container } = render(<App />)
+    act(() => {
+      setTour({ activeSection: 'projects' })
+    })
+    const current = container.querySelectorAll('#projects [aria-current]')
+    expect(current).toHaveLength(1)
+    expect(current[0]).toHaveAttribute('aria-current', 'true')
+    expect(current[0]).toBe(card(content.projects[0].title))
+  })
+
+  it('no item uses aria-pressed', () => {
+    const { container } = render(<App />)
+    expect(container.querySelector('#projects [aria-pressed]')).toBeNull()
+  })
+
+  it('clicking a compact row selects it', () => {
+    render(<App />)
+    act(() => {
+      setTour({ activeSection: 'projects' })
+    })
+    fireEvent.click(within(card(content.projects[3].title)).getByText(content.projects[3].summary))
+    expect(getTour().activeProjectId).toBe(content.projects[3].id)
+    expect(card(content.projects[3].title)).toHaveAttribute('aria-current', 'true')
+    expect(card(content.projects[0].title)).not.toHaveAttribute('aria-current')
+  })
+
+  it('focusing a link inside an item selects it, featured or compact', () => {
+    render(<App />)
+    for (const i of [1, 2]) {
+      const link = within(card(content.projects[i].title)).getByRole('link', { name: /repository/i })
+      act(() => link.focus())
+      expect(getTour().activeProjectId).toBe(content.projects[i].id)
+    }
+  })
+
+  it('clicking a featured card selects it', () => {
+    render(<App />)
+    fireEvent.click(within(card(content.projects[1].title)).getByText(content.projects[1].summary))
+    expect(getTour().activeProjectId).toBe(content.projects[1].id)
   })
 })
 
@@ -197,7 +258,7 @@ describe('projects follow scroll', () => {
     expect(getTour().activeProjectId).toBe(content.projects[1].id)
   })
 
-  it('sets activeProjectId to the card whose centre is nearest the viewport centre', () => {
+  it('sets activeProjectId to the item whose centre is nearest the viewport centre', () => {
     const observed: Element[] = []
     const targets = new Map<Element, IntersectionObserverCallback>()
     vi.stubGlobal(
@@ -216,9 +277,10 @@ describe('projects follow scroll', () => {
     act(() => {
       setTour({ activeSection: 'projects' })
     })
-    const list = screen.getByRole('list', { name: /projects/i })
-    observed.push(...Array.from(list.children).filter((el) => targets.has(el)))
+    observed.push(...[...targets.keys()].filter((el) => el.closest('#projects')))
     expect(observed).toHaveLength(content.projects.length)
+    // observed in project order, whatever the DOM order of the two tiers
+    expect(observed.map((el) => el.querySelector('h3, h4')?.textContent)).toEqual(content.projects.map((p) => p.title))
     const callback = targets.get(observed[0])!
     const mid = window.innerHeight / 2
     const entry = (target: Element, top: number) =>
@@ -235,134 +297,103 @@ describe('projects follow scroll', () => {
     })
     expect(getTour().activeProjectId).toBe(content.projects[1].id)
   })
-
-  it('clicking a card still selects it and opens its detail', () => {
-    render(<App />)
-    act(() => {
-      setTour({ activeSection: 'projects' })
-    })
-    const list = screen.getByRole('list', { name: /projects/i })
-    fireEvent.click(within(list).getAllByRole('button')[2])
-    expect(getTour().activeProjectId).toBe(content.projects[2].id)
-    expect(screen.getByRole('region', { name: /project details/i })).toBeInTheDocument()
-  })
 })
 
-describe('project media', () => {
-  const media = [
-    { src: 'a.webp', alt: 'A alt', caption: 'A caption' },
-    { src: 'b.webp', alt: 'B alt', caption: 'B caption' },
-  ]
-  const project = { ...content.projects[0], metrics: ['m one', 'm two'], media }
+describe('featured project picture and lightbox', () => {
+  const project: Project = {
+    ...content.projects[0],
+    media: [{ src: 'img/x.webp', alt: 'X alt', caption: 'X caption' }],
+  }
+  const renderCard = () => render(<FeaturedProject project={project} active={false} onSelect={() => {}} />)
+  const opener = () => screen.getByRole('button', { name: 'Enlarge: X caption' })
 
-  it('ProjectCard shows the cover from media[0] and one chip per metric', () => {
-    const { container } = render(<ProjectCard project={project} selected={false} onSelect={() => {}} />)
-    const img = container.querySelector('img')!
-    expect(img.getAttribute('src')).toBe(import.meta.env.BASE_URL + 'a.webp')
-    expect(img).toHaveAttribute('alt', '')
-    expect(container.querySelectorAll('.proof-chips > *')).toHaveLength(2)
-    expect(screen.getByText('m one')).toBeInTheDocument()
+  it('the picture src is built from BASE_URL and reserves its space', () => {
+    renderCard()
+    expect(screen.getByRole('img', { name: 'X alt' }).getAttribute('src')).toBe(import.meta.env.BASE_URL + 'img/x.webp')
   })
 
-  it('ProjectCard without media renders no img', () => {
-    const { container } = render(<ProjectCard project={{ ...project, media: [] }} selected={false} onSelect={() => {}} />)
+  it('a compact project renders no img', () => {
+    const { container } = render(
+      <CompactProject project={{ ...project, featured: false, media: [], metrics: [] }} active={false} onSelect={() => {}} />,
+    )
     expect(container.querySelector('img')).toBeNull()
   })
 
-  it('ProjectDetail renders every media item with its caption', () => {
-    const { container } = render(<ProjectDetail project={project} />)
-    expect(container.querySelectorAll('figure')).toHaveLength(2)
-    expect(screen.getByText('A caption').tagName).toBe('FIGCAPTION')
-    expect(screen.getByText('B caption')).toBeInTheDocument()
-    expect(screen.getByRole('img', { name: 'A alt' })).toBeInTheDocument()
-  })
-
-  it('a project with no media renders no gallery', () => {
-    const { container } = render(<ProjectDetail project={{ ...project, media: [] }} />)
-    expect(container.querySelector('figure')).toBeNull()
-    expect(container.querySelector('img')).toBeNull()
-  })
-
-  it('clicking a detail image opens the lightbox dialog with the caption', () => {
-    render(<ProjectDetail project={project} />)
+  it('clicking the picture opens the lightbox dialog with the caption', () => {
+    renderCard()
     expect(screen.queryByRole('dialog')).toBeNull()
-    fireEvent.click(screen.getByRole('button', { name: 'Enlarge: B caption' }))
-    const dialog = screen.getByRole('dialog', { name: 'B caption' })
+    fireEvent.click(opener())
+    const dialog = screen.getByRole('dialog', { name: 'X caption' })
     expect(dialog).toHaveAttribute('aria-modal', 'true')
     expect(within(dialog).getByRole('button', { name: /close/i })).toHaveFocus()
   })
 
   it('Escape closes the lightbox and returns focus to the opener', () => {
-    render(<ProjectDetail project={project} />)
-    const opener = screen.getByRole('button', { name: 'Enlarge: A caption' })
-    opener.focus()
-    fireEvent.click(opener)
+    renderCard()
+    opener().focus()
+    fireEvent.click(opener())
     fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' })
     expect(screen.queryByRole('dialog')).toBeNull()
-    expect(opener).toHaveFocus()
+    expect(opener()).toHaveFocus()
   })
 
   it('the close button and a backdrop click close it', () => {
-    render(<ProjectDetail project={project} />)
-    fireEvent.click(screen.getByRole('button', { name: 'Enlarge: A caption' }))
+    renderCard()
+    fireEvent.click(opener())
     fireEvent.click(screen.getByRole('button', { name: /close/i }))
     expect(screen.queryByRole('dialog')).toBeNull()
-    fireEvent.click(screen.getByRole('button', { name: 'Enlarge: A caption' }))
+    fireEvent.click(opener())
     fireEvent.click(screen.getByTestId('lightbox-backdrop'))
     expect(screen.queryByRole('dialog')).toBeNull()
   })
 
   it('Escape closes the lightbox after focus moved to body', () => {
-    render(<ProjectDetail project={project} />)
-    fireEvent.click(screen.getByRole('button', { name: 'Enlarge: A caption' }))
+    renderCard()
+    fireEvent.click(opener())
     ;(document.activeElement as HTMLElement).blur()
     expect(document.body).toHaveFocus()
     fireEvent.keyDown(document, { key: 'Escape' })
     expect(screen.queryByRole('dialog')).toBeNull()
   })
 
-  it('the lightbox is rendered under document.body outside the project detail', () => {
-    render(<ProjectDetail project={project} />)
-    fireEvent.click(screen.getByRole('button', { name: 'Enlarge: A caption' }))
+  it('the lightbox is portalled under document.body, outside the card', () => {
+    const { container } = renderCard()
+    fireEvent.click(opener())
     const dialog = screen.getByRole('dialog')
-    expect(dialog.closest('.project-detail')).toBeNull()
+    expect(container.contains(dialog)).toBe(false)
+    expect(dialog.closest('article')).toBeNull()
     expect(document.body.contains(dialog)).toBe(true)
   })
 
-  it('body overflow is locked while open and restored after close', () => {
+  it('body overflow is locked while open and restored after close and after unmount', () => {
     document.body.style.overflow = 'scroll'
-    const { unmount } = render(<ProjectDetail project={project} />)
-    fireEvent.click(screen.getByRole('button', { name: 'Enlarge: A caption' }))
+    const { unmount } = renderCard()
+    fireEvent.click(opener())
     expect(document.body.style.overflow).toBe('hidden')
     fireEvent.keyDown(document, { key: 'Escape' })
     expect(document.body.style.overflow).toBe('scroll')
-    fireEvent.click(screen.getByRole('button', { name: 'Enlarge: A caption' }))
+    fireEvent.click(opener())
     unmount()
     expect(document.body.style.overflow).toBe('scroll')
+    expect(screen.queryByRole('dialog')).toBeNull()
     document.body.style.overflow = ''
   })
 
-  it('the lightbox closes when the active project changes', () => {
-    const { rerender } = render(<ProjectDetail project={project} />)
-    fireEvent.click(screen.getByRole('button', { name: 'Enlarge: A caption' }))
-    expect(screen.getByRole('dialog')).toBeInTheDocument()
-    rerender(<ProjectDetail project={{ ...content.projects[1], media }} />)
-    expect(screen.queryByRole('dialog')).toBeNull()
-  })
-
-  it('focus falls back when the opener has been removed', () => {
-    render(<ProjectDetail project={project} />)
-    const opener = screen.getByRole('button', { name: 'Enlarge: A caption' })
-    opener.focus()
-    fireEvent.click(opener)
-    opener.remove()
+  it('focus falls back to the card heading when the opener has been removed', () => {
+    renderCard()
+    opener().focus()
+    fireEvent.click(opener())
+    opener().remove()
     fireEvent.keyDown(document, { key: 'Escape' })
-    expect(document.activeElement).toBe(document.querySelector('.project-detail h3'))
+    const heading = screen.getByRole('heading', { name: project.title })
+    expect(heading).toHaveAttribute('tabindex', '-1')
+    expect(document.activeElement).toBe(heading)
   })
 
-  it('Experience renders the Qehna image with alt text', () => {
-    render(<Experience />)
-    const img = screen.getByRole('img', { name: /dead-time|oscilloscope/i })
-    expect(img.getAttribute('alt')!.length).toBeGreaterThan(10)
+  it('opens from the featured picture button inside the app', () => {
+    render(<App />)
+    const first = content.projects[0]
+    fireEvent.click(screen.getByRole('button', { name: `Enlarge: ${first.media[0].caption}` }))
+    expect(screen.getByRole('dialog', { name: first.media[0].caption })).toBeInTheDocument()
   })
 })

@@ -1,16 +1,22 @@
 import { useEffect, useRef } from 'react'
 import { content } from '../content'
 import { getTour, setTour, useTour } from '../state/tourStore'
-import ProjectCard from './ProjectCard'
-import ProjectDetail from './ProjectDetail'
+import CompactProject from './CompactProject'
+import FeaturedProject from './FeaturedProject'
 
 export default function Projects() {
   const activeId = useTour((t) => t.activeProjectId)
-  // The detail is always rendered (first project until one is chosen or scrolled to),
-  // so the page height does not jump when the tour first selects a project.
+  // The first project is the active one until another is chosen or scrolled to.
   const active = content.projects.find((p) => p.id === activeId) ?? content.projects[0]
+  const featured = content.projects.filter((p) => p.featured)
+  const compact = content.projects.filter((p) => !p.featured)
   const inProjects = useTour((t) => t.activeSection === 'projects')
   const itemRefs = useRef(new Map<string, HTMLLIElement>())
+  const itemRef = (id: string) => (el: HTMLLIElement | null) => {
+    if (el) itemRefs.current.set(id, el)
+    else itemRefs.current.delete(id)
+  }
+  const select = (id: string) => setTour({ activeProjectId: id })
 
   useEffect(() => {
     if (inProjects && getTour().activeProjectId === null) {
@@ -53,24 +59,21 @@ export default function Projects() {
     <section id="projects" className="section" aria-labelledby="projects-title">
       <div className="panel">
         <h2 id="projects-title">Projects</h2>
-        <ul className="project-list" aria-label="Projects">
-          {content.projects.map((project) => (
-            <li
-              key={project.id}
-              ref={(el) => {
-                if (el) itemRefs.current.set(project.id, el)
-                else itemRefs.current.delete(project.id)
-              }}
-            >
-              <ProjectCard
-                project={project}
-                selected={project.id === active.id}
-                onSelect={(id) => setTour({ activeProjectId: id })}
-              />
+        <ul className="featured-list" aria-label="Featured projects">
+          {featured.map((project) => (
+            <li key={project.id} ref={itemRef(project.id)}>
+              <FeaturedProject project={project} active={project.id === active.id} onSelect={select} />
             </li>
           ))}
         </ul>
-        <ProjectDetail key={active.id} project={active} />
+        <h3 className="more-projects">More projects</h3>
+        <ul className="compact-list" aria-label="More projects">
+          {compact.map((project) => (
+            <li key={project.id} ref={itemRef(project.id)}>
+              <CompactProject project={project} active={project.id === active.id} onSelect={select} />
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   )

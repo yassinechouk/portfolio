@@ -17,18 +17,16 @@ test('the Experience section lists both internships', async ({ page }) => {
     await expect(article).toContainText(job.organization)
     await expect(article).toContainText(job.period)
     await expect(article.locator('.job-outcomes li')).toHaveCount(job.outcomes.length)
+    if (!job.image) await expect(article.locator('img')).toHaveCount(0)
   }
 })
 
-test('every project media and experience image responds 200 with an image/webp content type under /portfolio/', async ({
+test('every featured project picture responds 200 with an image/webp content type under /portfolio/', async ({
   baseURL,
   request,
 }) => {
-  const srcs = [
-    ...projects.flatMap((p) => p.media.map((m) => m.src)),
-    ...experience.flatMap((e) => (e.image ? [e.image.src] : [])),
-  ]
-  expect(srcs.length).toBeGreaterThan(0)
+  const srcs = projects.flatMap((p) => p.media.map((m) => m.src))
+  expect(srcs).toHaveLength(2)
   for (const src of srcs) {
     const url = new URL(src, baseURL)
     expect(url.pathname, src).toMatch(/^\/portfolio\//)
@@ -64,9 +62,10 @@ test('no horizontal overflow at 375px', async ({ page }) => {
   const scrollWidth = () => page.evaluate(() => document.documentElement.scrollWidth)
   expect(await scrollWidth()).toBeLessThanOrEqual(375)
 
-  // With the project detail and its gallery rendered.
+  // With the featured cards and the compact rows rendered.
   await page.locator('nav a[href="#projects"]').click()
-  await expect(page.locator('.project-detail .gallery-button').first()).toBeAttached()
+  await expect(page.locator('.featured-picture').first()).toBeAttached()
+  await expect(page.locator('.compact-project').first()).toBeAttached()
   expect(await scrollWidth()).toBeLessThanOrEqual(375)
 })
 
@@ -116,9 +115,9 @@ test('the contact form submits to a mocked Web3Forms route and shows the thank-y
   expect(posted).toMatchObject({ access_key: contact.form.accessKey, email: 'visitor@example.com' })
 })
 
-test('the lightbox opens from a project detail image and Escape closes it', async ({ page }) => {
+test('the lightbox opens from a featured project picture and Escape closes it', async ({ page }) => {
   await page.goto('')
-  const opener = page.locator('.project-detail .gallery-button').first()
+  const opener = page.locator('.featured-picture').first()
   await expect(opener).toBeVisible()
   await expect(page.getByRole('dialog')).toHaveCount(0)
 
@@ -151,7 +150,7 @@ async function expectColdClicksLandOnTheirSection(browser: Browser, baseURL: str
       await link.click()
       await expect(link, id).toHaveAttribute('aria-current', 'location')
       if (id === 'projects') {
-        await expect(page.locator('.project-detail h3')).toHaveText(projects[0].title)
+        await expect(page.locator('.featured-project').first()).toHaveAttribute('aria-current', 'true')
       }
     } finally {
       await context.close()
