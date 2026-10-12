@@ -54,7 +54,7 @@ describe('sections', () => {
   })
 
   it('a project without media renders its card without an img element', () => {
-    const project = content.projects.find((p) => p.media.length === 0)!
+    const project = { ...content.projects[0], media: [] }
     const { container } = render(<ProjectCard project={project} selected={false} onSelect={() => {}} />)
     expect(container.querySelector('img')).toBeNull()
   })
@@ -245,5 +245,76 @@ describe('projects follow scroll', () => {
     fireEvent.click(within(list).getAllByRole('button')[2])
     expect(getTour().activeProjectId).toBe(content.projects[2].id)
     expect(screen.getByRole('region', { name: /project details/i })).toBeInTheDocument()
+  })
+})
+
+describe('project media', () => {
+  const media = [
+    { src: 'a.webp', alt: 'A alt', caption: 'A caption' },
+    { src: 'b.webp', alt: 'B alt', caption: 'B caption' },
+  ]
+  const project = { ...content.projects[0], metrics: ['m one', 'm two'], media }
+
+  it('ProjectCard shows the cover from media[0] and one chip per metric', () => {
+    const { container } = render(<ProjectCard project={project} selected={false} onSelect={() => {}} />)
+    const img = container.querySelector('img')!
+    expect(img.getAttribute('src')).toBe(import.meta.env.BASE_URL + 'a.webp')
+    expect(img).toHaveAttribute('alt', '')
+    expect(container.querySelectorAll('.proof-chips > *')).toHaveLength(2)
+    expect(screen.getByText('m one')).toBeInTheDocument()
+  })
+
+  it('ProjectCard without media renders no img', () => {
+    const { container } = render(<ProjectCard project={{ ...project, media: [] }} selected={false} onSelect={() => {}} />)
+    expect(container.querySelector('img')).toBeNull()
+  })
+
+  it('ProjectDetail renders every media item with its caption', () => {
+    const { container } = render(<ProjectDetail project={project} />)
+    expect(container.querySelectorAll('figure')).toHaveLength(2)
+    expect(screen.getByText('A caption').tagName).toBe('FIGCAPTION')
+    expect(screen.getByText('B caption')).toBeInTheDocument()
+    expect(screen.getByRole('img', { name: 'A alt' })).toBeInTheDocument()
+  })
+
+  it('a project with no media renders no gallery', () => {
+    const { container } = render(<ProjectDetail project={{ ...project, media: [] }} />)
+    expect(container.querySelector('figure')).toBeNull()
+    expect(container.querySelector('img')).toBeNull()
+  })
+
+  it('clicking a detail image opens the lightbox dialog with the caption', () => {
+    render(<ProjectDetail project={project} />)
+    expect(screen.queryByRole('dialog')).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: 'Enlarge: B caption' }))
+    const dialog = screen.getByRole('dialog', { name: 'B caption' })
+    expect(dialog).toHaveAttribute('aria-modal', 'true')
+    expect(within(dialog).getByRole('button', { name: /close/i })).toHaveFocus()
+  })
+
+  it('Escape closes the lightbox and returns focus to the opener', () => {
+    render(<ProjectDetail project={project} />)
+    const opener = screen.getByRole('button', { name: 'Enlarge: A caption' })
+    opener.focus()
+    fireEvent.click(opener)
+    fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' })
+    expect(screen.queryByRole('dialog')).toBeNull()
+    expect(opener).toHaveFocus()
+  })
+
+  it('the close button and a backdrop click close it', () => {
+    render(<ProjectDetail project={project} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Enlarge: A caption' }))
+    fireEvent.click(screen.getByRole('button', { name: /close/i }))
+    expect(screen.queryByRole('dialog')).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: 'Enlarge: A caption' }))
+    fireEvent.click(screen.getByTestId('lightbox-backdrop'))
+    expect(screen.queryByRole('dialog')).toBeNull()
+  })
+
+  it('Experience renders the Qehna image with alt text', () => {
+    render(<Experience />)
+    const img = screen.getByRole('img', { name: /dead-time|oscilloscope/i })
+    expect(img.getAttribute('alt')!.length).toBeGreaterThan(10)
   })
 })

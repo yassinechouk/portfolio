@@ -63,6 +63,11 @@ export const content: Content = {
         'Used third-harmonic injection for about 15.5% more DC-bus use, and checked the sine references and the 300 ns dead-time on an oscilloscope.',
       ],
       tags: ['TI C2000', 'PWM', 'V/f control'],
+      image: {
+        src: 'experience/qehna-deadband.webp',
+        alt: 'Photo of an oscilloscope screen with two PWM traces and cursors; the readout shows a 300 ns time difference between them',
+        caption: '300 ns dead-time between complementary PWM signals, measured on the oscilloscope.',
+      },
       repoUrl: 'https://github.com/yassinechouk/c2000-vf-motor-control',
     },
     {
@@ -87,7 +92,23 @@ export const content: Content = {
       tags: ['STM32L476RG', 'FreeRTOS', 'ESP32-S3', 'DWT', 'UART'],
       role: 'Author',
       metrics: ['13 tasks', '0 deadline misses', '47.8% CPU', '5/5 injected faults caught in under 0.58 s'],
-      media: [],
+      media: [
+        {
+          src: 'projects/freertos-inspector/inspector.webp',
+          alt: 'FreeRTOS Inspector dashboard with an All tasks on time verdict, CPU load and the task table',
+          caption: 'Live dashboard on the bench: 13 tasks discovered, every deadline met, CPU 47.8% busy.',
+        },
+        {
+          src: 'projects/freertos-inspector/inspector-fault.webp',
+          alt: 'The same dashboard showing a red Deadline problem verdict, with the late tasks link and taskB highlighted in the task table',
+          caption: 'After an injected CPU hog, the Inspector names the late tasks.',
+        },
+        {
+          src: 'projects/freertos-inspector/bench.webp',
+          alt: 'Photo of the test bench: an STM32 Nucleo board, a purple ESP32-S3 board and a green microcontroller board wired to a breadboard with a potentiometer',
+          caption: 'The hardware-in-the-loop bench: an STM32 Nucleo under test, two more microcontroller boards and a speed potentiometer.',
+        },
+      ],
       repoUrl: 'https://github.com/yassinechouk/Freertos-inspector',
     },
     {
@@ -98,7 +119,18 @@ export const content: Content = {
       tags: ['STM32L476RG', 'Bare-metal C', 'ESP32-S3', 'UART', 'CRC32', 'IWDG'],
       role: 'Author',
       metrics: ['3-layer verification', 'automatic rollback', '43 host tests'],
-      media: [],
+      media: [
+        {
+          src: 'projects/ota-bootloader/arch.webp',
+          alt: 'Architecture diagram: an ST-Link debugger, a USB-UART cable and a PC on Wi-Fi reach an ESP32-S3 gateway and an STM32L476RG Nucleo holding the bootloader, slot A and slot B',
+          caption: 'One STM32 with a 32 KB bootloader and two 480 KB slots, reachable over UART or a Wi-Fi gateway.',
+        },
+        {
+          src: 'projects/ota-bootloader/memory-layout.webp',
+          alt: 'Flash memory map of the STM32L476RG: a 32 KB bootloader, two 480 KB application slots and two 2 KB metadata blocks, with addresses from 0x08000000 to 0x08100000',
+          caption: 'Flash layout: bootloader, slots A and B, and two metadata copies so a power loss never corrupts the state; rollback is a single field write.',
+        },
+      ],
       repoUrl: 'https://github.com/yassinechouk/BOOTLOADER_OTA',
     },
     {
@@ -109,7 +141,18 @@ export const content: Content = {
       tags: ['ESP32-S3', 'MPU6050', 'SIM800L', 'NEO-6M GPS', 'Random Forest'],
       role: 'Embedded firmware & ML (team project)', // TODO(owner): confirm role
       metrics: ['Random Forest on-device', 'Wi-Fi alerts + SMS fallback'],
-      media: [],
+      media: [
+        {
+          src: 'projects/trackify/prototype.webp',
+          alt: 'Prototype on a cardboard board: an ESP32-S3 board, a GPS module, a SIM800L modem, an LCD, a yellow button and a battery supply wired on a breadboard',
+          caption: 'Working prototype: ESP32-S3, GPS, SIM800L GSM modem, an SOS button and an LCD, powered from a Li-ion cell.',
+        },
+        {
+          src: 'projects/trackify/concept.webp',
+          alt: 'Concept illustration of an older woman wearing the chest-worn device, with callouts for the SOS button, LCD, fall detection states, geolocation and alerts',
+          caption: 'The imagined wearable product.',
+        },
+      ],
       repoUrl: 'https://github.com/yassinechouk/smart-belt-alzheimer',
     },
     {
@@ -120,7 +163,13 @@ export const content: Content = {
       tags: ['ESP32-S3', 'XGBoost', 'C++', 'DS18B20'],
       role: 'Model training & ESP32-S3 firmware',
       metrics: ['under 10 ms inference', '~400 KB flash', '~1 KB RAM', 'bit-exact with Python'],
-      media: [],
+      media: [
+        {
+          src: 'projects/aqua-genius/prototype.webp',
+          alt: 'Top view of the field prototype: a microcontroller on a breadboard in a cardboard box, a soil sensor in a plant pot and two water tanks joined by tubing',
+          caption: 'Field prototype: ESP32-S3 controller on a breadboard, soil sensor in a pot, and two water tanks linked by tubing.',
+        },
+      ],
       repoUrl: 'https://github.com/yassinechouk/AQUA_GENIUS_project',
     },
   ],

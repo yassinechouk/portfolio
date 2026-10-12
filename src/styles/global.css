@@ -415,10 +415,124 @@ ul {
   overflow-wrap: anywhere;
 }
 
-.project-card img,
-.project-detail img {
-  max-width: 100%;
+.project-card .project-cover {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  object-position: top;
+  border-radius: calc(var(--radius) - 2px);
+  background: color-mix(in srgb, var(--text) 6%, transparent);
+}
+
+.project-card .project-cover {
+  max-height: 14rem;
+}
+
+.proof-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  list-style: none;
+  margin: 0.5rem 0;
+  padding: 0;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+}
+
+.proof-chips > li,
+.proof-chips > span {
+  padding: 0.1rem 0.5rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 60%, transparent);
+  border-radius: 4px;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
+  gap: var(--space);
+  margin-top: var(--space);
+}
+
+.gallery-item {
+  margin: 0;
+}
+
+.gallery-button {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 1px solid var(--panel-border);
   border-radius: var(--radius);
+  background: transparent;
+  cursor: zoom-in;
+  overflow: hidden;
+}
+
+.gallery-button:hover,
+.gallery-button:focus-visible {
+  border-color: var(--accent);
+}
+
+.gallery-button img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  object-position: top;
+}
+
+.gallery-item figcaption {
+  margin-top: 0.4rem;
+}
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.85);
+}
+
+.lightbox-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-width: min(100%, 72rem);
+  max-height: 100%;
+  padding: 0.75rem;
+  border-radius: var(--radius);
+  background: var(--bg);
+  border: 1px solid var(--panel-border);
+}
+
+.lightbox-dialog img {
+  display: block;
+  max-width: 100%;
+  min-height: 0;
+  max-height: calc(100vh - 12rem);
+  object-fit: contain;
+  margin: 0 auto;
+}
+
+.lightbox-caption {
+  margin: 0;
+}
+
+.lightbox-close {
+  align-self: flex-end;
+  padding: 0.4rem 1rem;
+  font: inherit;
+  color: var(--text);
+  background: transparent;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  cursor: pointer;
 }
 
 .project-title {

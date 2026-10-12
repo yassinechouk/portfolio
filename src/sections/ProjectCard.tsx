@@ -16,8 +16,17 @@ export default function ProjectCard({ project, selected, onSelect }: Props) {
       aria-pressed={selected}
       onClick={() => onSelect(project.id)}
     >
-      {cover ? <img src={assetUrl(cover.src)} alt="" loading="lazy" /> : null}
+      {cover ? (
+        <img className="project-cover" src={assetUrl(cover.src)} alt="" loading="lazy" />
+      ) : null}
       <span className="project-title">{project.title}</span>
+      {project.metrics.length > 0 ? (
+        <span className="proof-chips">
+          {project.metrics.map((metric) => (
+            <span key={metric}>{metric}</span>
+          ))}
+        </span>
+      ) : null}
       <span className="chips">
         {project.tags.map((tag) => (
           <span key={tag}>{tag}</span>
