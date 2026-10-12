@@ -40,6 +40,7 @@ describe('Hero', () => {
   it('shows the availability badge, role and affiliation', () => {
     const { about } = content
     render(<Hero />)
+    expect(about.availability).toBe('Open to collaborations')
     expect(screen.getByText(about.availability)).toBeInTheDocument()
     expect(screen.getByText(about.role)).toBeInTheDocument()
     expect(screen.getByText(about.affiliation)).toBeInTheDocument()
@@ -62,15 +63,13 @@ describe('Hero', () => {
 })
 
 describe('About', () => {
-  it('shows the lead, the three blocks, highlights, education and spoken languages', () => {
+  it('shows the lead, the collaboration block, highlights, education and spoken languages', () => {
     const { about } = content
     render(<About />)
     expect(screen.getByRole('heading', { level: 2, name: "Hi, I'm Yassine." })).toBeInTheDocument()
     expect(screen.getByText(about.lead)).toBeInTheDocument()
     expect(screen.getAllByRole('heading', { level: 3 }).map((h) => h.textContent)).toEqual([
-      'What I build',
-      'How I work',
-      "What I'm looking for",
+      "Let's collaborate",
     ])
     for (const b of about.blocks) expect(screen.getByText(b.text)).toBeInTheDocument()
     for (const h of about.highlights) expect(screen.getByText(h)).toBeInTheDocument()

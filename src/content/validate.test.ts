@@ -41,7 +41,7 @@ const valid = (): Content => ({
     name: 'Test Person',
     role: 'Student',
     affiliation: 'INSAT',
-    availability: 'Seeking an internship',
+    availability: 'Open to collaborations',
     headline: 'Embedded engineer',
     tagline: 'Tagline.',
     lead: 'Lead.',
@@ -77,13 +77,22 @@ describe('validateContent', () => {
     expect(errors[0]).toContain('about.lead')
   })
 
-  it('rejects fewer than 2 or more than 4 blocks', () => {
-    const one = valid()
-    one.about.blocks = one.about.blocks.slice(0, 1)
-    expect(validateContent(one)).toEqual([expect.stringContaining('about.blocks')])
-    const five = valid()
-    five.about.blocks = ['a', 'b', 'c', 'd', 'e'].map((t) => ({ title: t, text: t }))
-    expect(validateContent(five)).toEqual([expect.stringContaining('about.blocks')])
+  it('accepts a single block', () => {
+    const c = valid()
+    c.about.blocks = c.about.blocks.slice(0, 1)
+    expect(validateContent(c)).toEqual([])
+  })
+
+  it('rejects zero blocks', () => {
+    const c = valid()
+    c.about.blocks = []
+    expect(validateContent(c)).toEqual([expect.stringContaining('about.blocks')])
+  })
+
+  it('rejects more than 4 blocks', () => {
+    const c = valid()
+    c.about.blocks = ['a', 'b', 'c', 'd', 'e'].map((t) => ({ title: t, text: t }))
+    expect(validateContent(c)).toEqual([expect.stringContaining('about.blocks')])
   })
 
   it('rejects a block with an empty title or text', () => {

@@ -45,7 +45,7 @@ public/      cv.pdf, favicon, og-image, chip-fallback.png (dark), chip-fallback-
 
 Edit only `src/content/index.ts` (types are in `src/content/types.ts`). Content is checked by `src/content/validate.ts`, so mistakes fail `npm test`.
 
-- `about`: name, `role`, `affiliation`, `availability` (the badge), `headline`, `tagline`, the About `lead` and 2 to 4 `blocks` (`title` + `text`), `highlights`, `education`, `spokenLanguages`, `photo` and `links` (`cv`, `github`, `linkedin`).
+- `about`: name, `role`, `affiliation`, `availability` (the badge), `headline`, `tagline`, the About `lead` and 1 to 4 `blocks` (`title` + `text`), `highlights`, `education`, `spokenLanguages`, `photo` and `links` (`cv`, `github`, `linkedin`).
 - `skills`: exactly six groups with the ids `languages`, `platforms`, `firmware`, `protocols`, `tools`, `testing`; each needs at least one item. The ids map to die blocks, so do not rename them.
 - `experience`: one entry per job with `role`, `organization`, `place`, `period`, `outcomes`, `tags`, optional `repoUrl` and optional `image` (`src`, `alt`, `caption`). Order is newest first.
 - `projects`: 3 to 6 entries, each with `summary`, `tags`, `repoUrl` and optional `demoUrl`, in the order they appear. 1 to 3 of them set `featured: true`; the rest are compact rows.

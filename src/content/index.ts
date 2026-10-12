@@ -5,22 +5,14 @@ export const content: Content = {
     name: 'Yassine Chouk',
     role: 'Embedded Systems Engineering Student',
     affiliation: 'INSAT, Tunisia',
-    availability: 'Seeking an embedded firmware internship',
+    availability: 'Open to collaborations',
     headline: 'I make microcontrollers keep their promises.',
     tagline: 'Firmware that meets its deadlines, from bare-metal bootloaders to RTOS-driven motor control.',
-    lead: "I'm an embedded systems engineering student at INSAT in Tunis. I write C and C++ firmware for STM32, ESP32-S3 and TI C2000 microcontrollers, and I prove it works on a real bench, not only in a simulator.",
+    lead: "I'm an embedded systems engineering student at INSAT in Tunis. I write C and C++ firmware for STM32, ESP32-S3 and TI C2000 microcontrollers.",
     blocks: [
       {
-        title: 'What I build',
-        text: 'Real-time firmware and the tools around it: a timing analyser for FreeRTOS, a bootloader that rolls back failed updates by itself, and machine-learning models that run on a microcontroller.',
-      },
-      {
-        title: 'How I work',
-        text: 'I design for failure first (power cuts, missed deadlines, bad updates), then check the result with hardware-in-the-loop tests, an oscilloscope and host-side unit tests.',
-      },
-      {
-        title: "What I'm looking for",
-        text: 'An embedded firmware internship where I can keep building systems that have to be right the first time.',
+        title: "Let's collaborate",
+        text: "Building something with microcontrollers, or have an idea that needs a firmware hand? I'm open to collaborations. Send me a message and let's talk.",
       },
     ],
     highlights: ['Real-time firmware', 'Bootloaders & OTA', 'Hardware-in-the-loop testing'],
