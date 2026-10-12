@@ -38,7 +38,9 @@ void main() {
   float behind = head - vDist;
   float trail = step(0.0, behind) * (1.0 - smoothstep(0.0, 0.14, behind));
   float pulse = trail * max(vPulse, isActive);
-  float boot = (uBoot >= 0.0 && uBoot <= 1.2) ? exp(-pow((vDist - uBoot) * 10.0, 2.0)) : 0.0;
+  // Squared explicitly: a power function with a negative base is undefined in GLSL (NaN on ANGLE/D3D).
+  float bootD = (vDist - uBoot) * 10.0;
+  float boot = (uBoot >= 0.0 && uBoot <= 1.2) ? exp(-bootD * bootD) : 0.0;
   float intensity = 0.32 + isActive * 0.4 + pulse * (0.9 + isActive * 1.4) + boot * 1.6;
   gl_FragColor = vec4(uAccent * intensity, clamp(intensity, 0.0, 1.0));
 }
