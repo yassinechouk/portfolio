@@ -4,6 +4,14 @@ import { isPlaceholderKey, submitForm, validateForm, type FormErrors, type FormV
 type Status = 'idle' | 'sending' | 'success' | 'error'
 type Props = { accessKey: string; email: string; fetchImpl?: typeof fetch }
 
+const FIELDS = ['name', 'email', 'message'] as const
+
+function summarize(errors: FormErrors): string {
+  const names = FIELDS.filter((key) => errors[key])
+  if (names.length === 0) return ''
+  return `Please fix ${names.length} ${names.length === 1 ? 'field' : 'fields'}: ${names.join(', ')}.`
+}
+
 const EMPTY: FormValues = { name: '', email: '', message: '', botcheck: '' }
 
 export default function ContactForm({ accessKey, email, fetchImpl }: Props) {
@@ -11,6 +19,7 @@ export default function ContactForm({ accessKey, email, fetchImpl }: Props) {
   const [values, setValues] = useState<FormValues>(EMPTY)
   const [errors, setErrors] = useState<FormErrors>({})
   const [status, setStatus] = useState<Status>('idle')
+  const [summary, setSummary] = useState('')
   const sending = useRef(false)
 
   if (isPlaceholderKey(accessKey)) {
@@ -24,15 +33,31 @@ export default function ContactForm({ accessKey, email, fetchImpl }: Props) {
     )
   }
 
-  const set = (field: keyof FormValues) => (e: { target: { value: string } }) =>
-    setValues((v) => ({ ...v, [field]: e.target.value }))
+  const set = (field: keyof FormValues) => (e: { target: { value: string } }) => {
+    const next = { ...values, [field]: e.target.value }
+    setValues(next)
+    if (status === 'success' || status === 'error') setStatus('idle')
+    if (field !== 'botcheck' && errors[field]) {
+      // Drop the error of a field as soon as it becomes valid, and refresh the summary.
+      const still = validateForm(next)
+      const remaining: FormErrors = {}
+      for (const key of FIELDS) if (errors[key] && still[key]) remaining[key] = still[key]
+      setErrors(remaining)
+      setSummary(summarize(remaining))
+    }
+  }
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault()
     if (sending.current) return
     const found = validateForm(values)
     setErrors(found)
-    if (Object.keys(found).length > 0) return
+    setSummary(summarize(found))
+    const firstInvalid = FIELDS.find((key) => found[key])
+    if (firstInvalid) {
+      document.getElementById(`${uid}-${firstInvalid}`)?.focus()
+      return
+    }
     sending.current = true
     setStatus('sending')
     const result = await submitForm(values, accessKey, { fetchImpl })
@@ -97,6 +122,7 @@ export default function ContactForm({ accessKey, email, fetchImpl }: Props) {
         {status === 'sending' ? 'Sending...' : 'Send message'}
       </button>
       <div className="form-status" role="status" aria-live="polite">
+        {summary !== '' && <p>{summary}</p>}
         {status === 'success' && <p>Thank you, your message was sent. I will reply soon.</p>}
         {status === 'error' && (
           <p className="field-error">

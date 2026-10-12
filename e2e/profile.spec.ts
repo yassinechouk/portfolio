@@ -80,21 +80,39 @@ test('the contact form submits to a mocked Web3Forms route and shows the thank-y
     await expect(section.getByLabel('Message')).toHaveCount(0)
     return
   }
+  const corsHeaders = {
+    'access-control-allow-origin': '*',
+    'access-control-allow-headers': '*',
+    'access-control-allow-methods': 'POST, OPTIONS',
+  }
   let posted: { access_key?: string; email?: string } | null = null
+  // Registered before any click. Answers the CORS preflight too, then the JSON POST.
   await page.route('https://api.web3forms.com/**', async (route) => {
+    if (route.request().method() === 'OPTIONS') {
+      await route.fulfill({ status: 204, headers: corsHeaders })
+      return
+    }
     posted = route.request().postDataJSON()
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      headers: { 'access-control-allow-origin': '*' },
+      headers: corsHeaders,
       body: JSON.stringify({ success: true }),
     })
   })
+  // The live region is in the tree (empty) before anything is submitted.
+  const status = section.getByRole('status')
+  await expect(status).toBeAttached()
+  await expect(status).toHaveText('')
+  // A failed validation focuses the first invalid field and is announced.
+  await section.getByRole('button', { name: 'Send message' }).click()
+  await expect(section.getByLabel('Name')).toBeFocused()
+  await expect(status).toContainText('Please fix 3 fields')
   await section.getByLabel('Name').fill('Test Visitor')
   await section.getByLabel('Email').fill('visitor@example.com')
   await section.getByLabel('Message').fill('Hello, this is a test message.')
   await section.getByRole('button', { name: 'Send message' }).click()
-  await expect(section.getByRole('status')).toContainText('Thank you')
+  await expect(status).toContainText('Thank you')
   expect(posted).toMatchObject({ access_key: contact.form.accessKey, email: 'visitor@example.com' })
 })
 

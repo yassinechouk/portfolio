@@ -76,4 +76,76 @@ describe('ContactForm', () => {
     expect(hp).toHaveAttribute('aria-hidden', 'true')
     expect(hp).toHaveAttribute('autocomplete', 'off')
   })
+
+  it('keeps the status live region in the document while idle', () => {
+    setup(ok())
+    const status = screen.getByRole('status')
+    expect(status).toBeInTheDocument()
+    expect(status).toHaveTextContent('')
+  })
+
+  it('failed validation moves focus to the first invalid field', () => {
+    setup(ok())
+    fireEvent.click(screen.getByRole('button', { name: /send/i }))
+    expect(screen.getByLabelText('Name')).toHaveFocus()
+  })
+
+  it('focus goes to the next invalid field when earlier ones are valid', () => {
+    setup(ok())
+    fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Ada' } })
+    fireEvent.click(screen.getByRole('button', { name: /send/i }))
+    expect(screen.getByLabelText('Email')).toHaveFocus()
+    fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'ada@example.com' } })
+    fireEvent.click(screen.getByRole('button', { name: /send/i }))
+    expect(screen.getByLabelText('Message')).toHaveFocus()
+  })
+
+  it('failed validation puts a summary in the status region', () => {
+    setup(ok())
+    fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Ada' } })
+    fireEvent.click(screen.getByRole('button', { name: /send/i }))
+    expect(screen.getByRole('status')).toHaveTextContent('Please fix 2 fields: email, message.')
+  })
+
+  it('uses the singular for one invalid field', () => {
+    setup(ok())
+    fill()
+    fireEvent.change(screen.getByLabelText('Name'), { target: { value: '  ' } })
+    fireEvent.click(screen.getByRole('button', { name: /send/i }))
+    expect(screen.getByRole('status')).toHaveTextContent('Please fix 1 field: name.')
+  })
+
+  it('clears the summary and a field error once the field becomes valid', async () => {
+    setup(ok())
+    fireEvent.click(screen.getByRole('button', { name: /send/i }))
+    fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Ada' } })
+    expect(screen.getByLabelText('Name')).not.toHaveAttribute('aria-invalid')
+    expect(screen.getByLabelText('Email')).toHaveAttribute('aria-invalid', 'true')
+    fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'ada@example.com' } })
+    fireEvent.change(screen.getByLabelText('Message'), { target: { value: 'Hello there, a longer message.' } })
+    fireEvent.click(screen.getByRole('button', { name: /send/i }))
+    await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent(/thank/i))
+    expect(screen.getByRole('status')).not.toHaveTextContent(/please fix/i)
+  })
+
+  it('clears the result message when a field is edited afterwards', async () => {
+    setup(ok())
+    fill()
+    fireEvent.click(screen.getByRole('button', { name: /send/i }))
+    await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent(/thank/i))
+    fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'B' } })
+    expect(screen.getByRole('status')).toHaveTextContent('')
+  })
+
+  it('sends trimmed values', async () => {
+    const f = ok()
+    setup(f)
+    fireEvent.change(screen.getByLabelText('Name'), { target: { value: '  Ada  ' } })
+    fireEvent.change(screen.getByLabelText('Email'), { target: { value: ' ada@example.com ' } })
+    fireEvent.change(screen.getByLabelText('Message'), { target: { value: '  Hello there, a longer message.  ' } })
+    fireEvent.click(screen.getByRole('button', { name: /send/i }))
+    await waitFor(() => expect(f).toHaveBeenCalled())
+    const body = JSON.parse((vi.mocked(f).mock.calls[0][1] as RequestInit).body as string)
+    expect(body).toMatchObject({ name: 'Ada', email: 'ada@example.com', message: 'Hello there, a longer message.', from_name: 'Ada' })
+  })
 })
