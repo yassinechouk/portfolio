@@ -91,7 +91,7 @@ export const content: Content = {
         'A live timing analyser for FreeRTOS. It discovers every task by itself, measures response times on the target, and checks each deadline twice: by calculation and by measurement. Proven on a hardware-in-the-loop motor-control bench, including a fault lab that injects CPU hogs on purpose.',
       tags: ['STM32L476RG', 'FreeRTOS', 'ESP32-S3', 'DWT', 'UART'],
       role: 'Author',
-      metrics: ['13 tasks', '0 deadline misses', '47.8% CPU', '5/5 injected faults caught in under 0.58 s'],
+      metrics: ['13 tasks', '0 deadline misses', '47.8% CPU', '5/5 injected faults caught within 0.58 s'],
       media: [
         {
           src: 'projects/freertos-inspector/inspector.webp',

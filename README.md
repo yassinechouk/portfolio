@@ -65,6 +65,7 @@ Add the file as `public/profile.jpg` and set `photo: 'profile.jpg'` in `about` i
 
 1. Create a free access key for `yassine.chouk@insat.ucar.tn` at https://web3forms.com.
 2. Paste it into `contact.form.accessKey` in `src/content/index.ts`.
+3. Run `npm run test:e2e` locally once: the contact e2e switches to the mocked real-form branch automatically.
 
 Until a real key is set, the Contact section shows an `Email me` button instead of the form, and the deploy workflow refuses to publish because the placeholder carries a `TODO(owner)` marker. The key is a public identifier by design (Web3Forms keys are meant for client-side use).
 
@@ -102,12 +103,13 @@ For a custom domain:
 
 - Set `base: '/'` in `vite.config.ts` and configure the custom domain (CNAME) in the repo's Settings, Pages.
 - Update `og:url` and `og:image` in `index.html`.
-- `playwright.config.ts` and `e2e/smoke.spec.ts` hard-code `/portfolio/`; update them after any base change.
+- `playwright.config.ts`, `e2e/smoke.spec.ts` and `e2e/profile.spec.ts` hard-code `/portfolio/`; update them after any base change.
 - The title, description and Open Graph text in `index.html` are personal text too; edit them for your own name and role.
 
 ## Before launch
 
 - [ ] Resolve every `TODO(owner)` marker in `src/content/index.ts` (`grep -rn "TODO(owner)" src/content`): the Trackify `role` (confirm it) and the Web3Forms `accessKey`. The deploy workflow refuses to build while any remains in `src/content`.
+- [ ] After pasting the Web3Forms key, run `npm run test:e2e` locally once: the contact e2e switches to the mocked real-form branch automatically.
 - [ ] Add the profile photo (`public/profile.jpg`, `about.photo`).
 - [ ] Make the repository public (or choose another host).
 - [ ] Decide on the accent color (see above).

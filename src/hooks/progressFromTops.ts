@@ -15,3 +15,15 @@ export function progressFromTops(tops: number[], scrollY: number): number {
   const p = (i + frac) / (n - 1)
   return Number.isFinite(p) ? Math.min(1, Math.max(0, p)) : 0
 }
+
+/**
+ * Scroll position used for tour progress. A nav click stops `paddingTop` short of
+ * the section top (scroll-padding-top), so that offset is added back. It ramps in
+ * over the first `paddingTop` pixels so the very top of the page stays at 0.
+ */
+export function effectiveScrollY(scrollY: number, paddingTop: number): number {
+  if (!Number.isFinite(scrollY)) return 0
+  const pad = Number.isFinite(paddingTop) ? Math.max(0, paddingTop) : 0
+  const y = Math.max(0, scrollY)
+  return y + Math.min(pad, y)
+}

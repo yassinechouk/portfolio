@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { type SectionId, setTour } from '../state/tourStore'
 import { clampTopsToMaxScroll } from './clampTops'
-import { progressFromTops } from './progressFromTops'
+import { effectiveScrollY, progressFromTops } from './progressFromTops'
 
 export function useScrollProgress(sectionIds: SectionId[]): void {
   useEffect(() => {
@@ -19,8 +19,9 @@ export function useScrollProgress(sectionIds: SectionId[]): void {
       let active = found[0].id
       for (const s of found) if (y >= s.top - window.innerHeight / 2) active = s.id
       if (maxScroll > 0 && y >= maxScroll - 1) active = found[found.length - 1].id
+      const padding = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0
       const tops = clampTopsToMaxScroll(found.map((s) => s.top), maxScroll)
-      setTour({ progress: progressFromTops(tops, y), activeSection: active })
+      setTour({ progress: progressFromTops(tops, effectiveScrollY(y, padding)), activeSection: active })
     }
 
     const schedule = () => {

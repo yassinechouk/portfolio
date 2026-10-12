@@ -183,14 +183,6 @@ ul {
   .about-panel {
     grid-template-columns: minmax(0, 1fr);
   }
-
-  .profile-photo {
-    width: 8rem;
-  }
-
-  .profile-initials {
-    font-size: 2.5rem;
-  }
 }
 
 .about-text h2 {
@@ -276,6 +268,16 @@ ul {
   bottom: -8px;
   right: -8px;
   clip-path: polygon(100% 0, 100% 100%, 0 100%);
+}
+
+@media (max-width: 640px) {
+  .profile-photo {
+    width: 8rem;
+  }
+
+  .profile-initials {
+    font-size: 2.5rem;
+  }
 }
 
 .button:hover {
@@ -681,7 +683,11 @@ ul {
 }
 
 .form-status:empty {
-  display: none;
+  /* Collapsed but still in the accessibility tree so announcements are not skipped. */
+  height: 0;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
 }
 
 .privacy {
