@@ -4,6 +4,7 @@ import App from '../App'
 import { content } from '../content'
 import { getTour, setTour } from '../state/tourStore'
 import ProjectCard from './ProjectCard'
+import ProjectDetail from './ProjectDetail'
 
 beforeEach(() => {
   act(() => {
@@ -78,5 +79,19 @@ describe('sections', () => {
     const group = content.skills[2]
     fireEvent.click(screen.getByRole('button', { name: new RegExp(group.label) }))
     expect(getTour().activeSkillGroup).toBe(group.id)
+  })
+})
+
+describe('project images', () => {
+  const withImage = { ...content.projects[0], image: 'img/x.png' }
+
+  it('card image src is built from BASE_URL', () => {
+    const { container } = render(<ProjectCard project={withImage} selected={false} onSelect={() => {}} />)
+    expect(container.querySelector('img')!.getAttribute('src')).toBe(import.meta.env.BASE_URL + 'img/x.png')
+  })
+
+  it('detail image src is built from BASE_URL', () => {
+    const { container } = render(<ProjectDetail project={withImage} />)
+    expect(container.querySelector('img')!.getAttribute('src')).toBe(import.meta.env.BASE_URL + 'img/x.png')
   })
 })

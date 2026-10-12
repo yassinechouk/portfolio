@@ -1,3 +1,4 @@
+import { assetUrl } from '../content/assetUrl'
 import type { Project } from '../content/types'
 
 export default function ProjectDetail({ project }: { project: Project }) {
@@ -13,7 +14,7 @@ export default function ProjectDetail({ project }: { project: Project }) {
           <li key={tag}>{tag}</li>
         ))}
       </ul>
-      {project.image ? <img src={project.image} alt={`${project.title} screenshot`} /> : null}
+      {project.image ? <img src={assetUrl(project.image)} alt={`${project.title} screenshot`} /> : null}
       <ul className="links">
         <li>
           <a href={project.repoUrl}>Repository</a>

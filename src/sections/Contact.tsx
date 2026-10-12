@@ -1,4 +1,5 @@
 import { content } from '../content'
+import { assetUrl } from '../content/assetUrl'
 
 export default function Contact() {
   const { email } = content.contact
@@ -11,7 +12,7 @@ export default function Contact() {
             <a href={`mailto:${email}`}>{email}</a>
           </li>
           <li>
-            <a className="button" href={import.meta.env.BASE_URL + content.about.links.cv}>
+            <a className="button" href={assetUrl(content.about.links.cv)}>
               Download CV
             </a>
           </li>

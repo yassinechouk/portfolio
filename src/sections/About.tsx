@@ -1,4 +1,5 @@
 import { content } from '../content'
+import { assetUrl } from '../content/assetUrl'
 
 export default function About() {
   const { bio, links } = content.about
@@ -9,7 +10,7 @@ export default function About() {
         <p>{bio}</p>
         <ul className="links">
           <li>
-            <a className="button" href={import.meta.env.BASE_URL + links.cv}>
+            <a className="button" href={assetUrl(links.cv)}>
               Download CV
             </a>
           </li>
