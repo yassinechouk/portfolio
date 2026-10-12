@@ -50,4 +50,14 @@ describe('poseAt', () => {
     const keys = new Set(SECTION_ORDER.map((id) => waypoints[id].position.join(',')))
     expect(keys.size).toBe(SECTION_ORDER.length)
   })
+
+  it.each([0, 1, NaN, 0.125])('returns a fresh pose that cannot corrupt waypoints (progress %s)', (progress) => {
+    const before = structuredClone(waypoints)
+    const pose = poseAt(progress)
+    pose.position[0] += 100
+    pose.target[1] += 100
+    expect(waypoints).toEqual(before)
+    expect(poseAt(progress)).not.toBe(pose)
+    expect(poseAt(progress).position).not.toBe(pose.position)
+  })
 })
