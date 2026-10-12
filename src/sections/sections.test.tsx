@@ -62,7 +62,7 @@ describe('sections', () => {
   it('the CV link href starts with import.meta.env.BASE_URL', () => {
     render(<App />)
     const cv = screen.getAllByRole('link', { name: /cv/i })
-    expect(cv.length).toBeGreaterThan(0)
+    expect(cv).toHaveLength(2) // Hero and Contact
     for (const a of cv) {
       expect(a.getAttribute('href')).toBe(import.meta.env.BASE_URL + content.about.links.cv)
     }

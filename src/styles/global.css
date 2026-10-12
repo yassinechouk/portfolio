@@ -135,6 +135,149 @@ ul {
   transition: background-color 0.2s, color 0.2s;
 }
 
+.button-primary {
+  background: var(--accent);
+  color: var(--bg);
+  font-weight: 700;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.hero-name {
+  margin: 0 0 0.25rem;
+  font-family: var(--font-mono);
+  color: var(--accent);
+  font-size: 1rem;
+}
+
+.hero-panel {
+  padding: 2rem 1.5rem;
+}
+
+.hero-panel h1 {
+  font-size: clamp(1.5rem, 7vw, 2.75rem);
+  line-height: 1.15;
+  margin: 0.5rem 0 1rem;
+  overflow-wrap: anywhere;
+}
+
+.hero-panel .lead {
+  color: var(--text-muted);
+  max-width: 36rem;
+}
+
+.about-panel {
+  width: min(100%, 56rem);
+  display: grid;
+  grid-template-columns: minmax(0, 12rem) minmax(0, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (max-width: 640px) {
+  .about-panel {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .profile-photo {
+    width: 8rem;
+  }
+
+  .profile-initials {
+    font-size: 2.5rem;
+  }
+}
+
+.about-text h2 {
+  margin-top: 0;
+}
+
+.about-text p {
+  margin: 0 0 0.75rem;
+}
+
+.about-text .chips {
+  margin: 1rem 0;
+}
+
+.facts {
+  margin: 1rem 0 0;
+  display: grid;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.facts dt {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.facts dd {
+  margin: 0.15rem 0 0;
+}
+
+.facts .chips {
+  margin: 0.25rem 0 0;
+}
+
+.profile-photo {
+  position: relative;
+  width: min(100%, 12rem);
+  aspect-ratio: 1;
+  border: 2px solid var(--accent);
+  border-radius: 4px;
+  background: #060b12;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 0 24px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+.profile-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.profile-initials {
+  font-family: var(--font-mono);
+  font-size: 3.5rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+
+/* chip-pin notches on the frame corners */
+.profile-photo::before,
+.profile-photo::after {
+  content: '';
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background: var(--accent);
+  pointer-events: none;
+}
+
+.profile-photo::before {
+  top: -8px;
+  left: -8px;
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+
+.profile-photo::after {
+  bottom: -8px;
+  right: -8px;
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+}
+
 .button:hover {
   background: var(--accent);
   color: var(--bg);
