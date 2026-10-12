@@ -4,6 +4,7 @@ const LABELS: Record<SectionId, string> = {
   hero: 'Home',
   about: 'About',
   skills: 'Skills',
+  experience: 'Experience',
   projects: 'Projects',
   contact: 'Contact',
 }

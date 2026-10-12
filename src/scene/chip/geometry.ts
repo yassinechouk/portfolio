@@ -38,13 +38,16 @@ export function pinIndexForProject(projectIndex: number, projectCount: number, p
 
 export type DieBlock = { groupId: SkillGroup['id']; position: Vec3; size: Vec3 }
 
-// Die floor plan (inside the package, centred at the origin):
-// CPU core = languages, memory = platforms, peripherals = protocols, debug/tools = tools.
+// Die floor plan (inside the 1.9 x 1.9 die, centred at the origin; back row on -z), a 3x2 grid
+// with distinct heights so it reads as a CPU: core = languages, flash/RAM = platforms,
+// scheduler = firmware, peripherals = protocols, debug = tools, self-test/BIST = testing.
 export const dieBlocks: DieBlock[] = [
-  { groupId: 'languages', position: [-0.38, 0, -0.32], size: [0.62, 0.1, 0.72] },
-  { groupId: 'platforms', position: [0.4, 0, -0.32], size: [0.6, 0.06, 0.72] },
-  { groupId: 'protocols', position: [-0.2, 0, 0.42], size: [1.0, 0.05, 0.4] },
-  { groupId: 'tools', position: [0.56, 0, 0.42], size: [0.28, 0.08, 0.4] },
+  { groupId: 'languages', position: [-0.46, 0, -0.43], size: [0.72, 0.13, 0.74] },
+  { groupId: 'platforms', position: [0.17, 0, -0.43], size: [0.42, 0.07, 0.74] },
+  { groupId: 'firmware', position: [0.63, 0, -0.43], size: [0.38, 0.1, 0.74] },
+  { groupId: 'protocols', position: [-0.53, 0, 0.34], size: [0.58, 0.05, 0.64] },
+  { groupId: 'tools', position: [0.06, 0, 0.34], size: [0.48, 0.085, 0.64] },
+  { groupId: 'testing', position: [0.59, 0, 0.34], size: [0.46, 0.06, 0.64] },
 ]
 
 /** Single scene accent; matches the CSS `--accent` default. */

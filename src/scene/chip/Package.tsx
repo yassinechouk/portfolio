@@ -5,30 +5,10 @@ import type { MeshStandardMaterial } from 'three'
 // Bundled so the label never depends on troika's default CDN font at runtime.
 import labelFont from '@fontsource/jetbrains-mono/files/jetbrains-mono-latin-600-normal.woff?url'
 import { getTour } from '../../state/tourStore'
+import { packageOpacity } from './fade'
 import { BODY_SIZE, BODY_THICKNESS } from './geometry'
 
 const TOP = BODY_THICKNESS / 2
-
-// Package opacity keyed on tour progress: solid at hero, a slight fade at about (hinting at
-// the inside), nearly see-through at skills so the die shows, solid again from projects on.
-const FADE: [number, number][] = [
-  [0, 1],
-  [0.25, 0.88],
-  [0.5, 0.1],
-  [0.75, 1],
-]
-
-function packageOpacity(progress: number): number {
-  const p = Math.min(1, Math.max(0, Number.isFinite(progress) ? progress : 0))
-  for (let k = 1; k < FADE.length; k++) {
-    const [p1, o1] = FADE[k]
-    if (p <= p1) {
-      const [p0, o0] = FADE[k - 1]
-      return o0 + ((o1 - o0) * (p - p0)) / (p1 - p0)
-    }
-  }
-  return 1
-}
 
 type Fadeable = { fillOpacity: number }
 

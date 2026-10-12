@@ -1,9 +1,9 @@
 import { useSyncExternalStore } from 'react'
 import type { SkillGroup } from '../content/types'
 
-export type SectionId = 'hero' | 'about' | 'skills' | 'projects' | 'contact'
+export type SectionId = 'hero' | 'about' | 'skills' | 'experience' | 'projects' | 'contact'
 
-export const SECTION_ORDER: SectionId[] = ['hero', 'about', 'skills', 'projects', 'contact']
+export const SECTION_ORDER: SectionId[] = ['hero', 'about', 'skills', 'experience', 'projects', 'contact']
 
 export type Tour = {
   progress: number

@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from '../App'
 import { content } from '../content'
 import { getTour, setTour } from '../state/tourStore'
+import Experience from './Experience'
 import ProjectCard from './ProjectCard'
 import ProjectDetail from './ProjectDetail'
 
@@ -13,9 +14,11 @@ beforeEach(() => {
 })
 
 describe('sections', () => {
-  it('renders all five sections with ids hero, about, skills, projects, contact', () => {
+  it('renders all six sections with ids hero, about, skills, experience, projects, contact', () => {
     const { container } = render(<App />)
-    for (const id of ['hero', 'about', 'skills', 'projects', 'contact']) {
+    const ids = Array.from(container.querySelectorAll('main > section')).map((el) => el.id)
+    expect(ids).toEqual(['hero', 'about', 'skills', 'experience', 'projects', 'contact'])
+    for (const id of ids) {
       const el = container.querySelector(`main section#${id}`)
       expect(el, id).not.toBeNull()
     }
@@ -79,6 +82,65 @@ describe('sections', () => {
     const group = content.skills[2]
     fireEvent.click(screen.getByRole('button', { name: new RegExp(group.label) }))
     expect(getTour().activeSkillGroup).toBe(group.id)
+  })
+})
+
+describe('experience', () => {
+  it('Experience renders both internships newest first with outcomes', () => {
+    const { container } = render(<App />)
+    const section = container.querySelector('section#experience') as HTMLElement
+    expect(within(section).getByRole('heading', { level: 2, name: 'Experience' })).toBeInTheDocument()
+    const timeline = section.querySelector('ol')!
+    const items = Array.from(timeline.children) as HTMLElement[]
+    expect(items).toHaveLength(content.experience.length)
+    expect(items).toHaveLength(2)
+    expect(items[0]).toHaveTextContent('Qehna LAB (ENIT), Tunis')
+    expect(items[1]).toHaveTextContent('Sagemcom, Ezzahra')
+    content.experience.forEach((job, i) => {
+      const card = within(items[i])
+      expect(card.getByRole('heading', { level: 3, name: job.role })).toBeInTheDocument()
+      expect(card.getByText(job.period)).toBeInTheDocument()
+      for (const outcome of job.outcomes) {
+        expect(card.getByText(outcome).tagName).toBe('LI')
+      }
+      for (const tag of job.tags) {
+        expect(card.getByText(tag)).toBeInTheDocument()
+      }
+      expect(card.getByRole('link', { name: /repository/i })).toHaveAttribute('href', job.repoUrl)
+    })
+  })
+
+  it('omits the repo link and image when absent', () => {
+    const bare = { ...content.experience[0], repoUrl: undefined, image: undefined }
+    const { container } = render(<Experience items={[bare]} />)
+    expect(container.querySelector('img')).toBeNull()
+    expect(screen.queryByRole('link', { name: /repository/i })).toBeNull()
+  })
+
+  it('shows an image with its alt text when present', () => {
+    const withImage = {
+      ...content.experience[0],
+      image: { src: 'experience/scope.jpg', alt: 'Scope capture', caption: 'Dead-time' },
+    }
+    render(<Experience items={[withImage]} />)
+    const img = screen.getByRole('img', { name: 'Scope capture' })
+    expect(img).toHaveAttribute('src', import.meta.env.BASE_URL + 'experience/scope.jpg')
+  })
+})
+
+describe('nav', () => {
+  it('Nav lists six links including Experience', () => {
+    render(<App />)
+    const links = within(screen.getByRole('navigation')).getAllByRole('link')
+    expect(links.map((a) => a.getAttribute('href'))).toEqual([
+      '#hero',
+      '#about',
+      '#skills',
+      '#experience',
+      '#projects',
+      '#contact',
+    ])
+    expect(screen.getByRole('link', { name: 'Experience' })).toHaveAttribute('href', '#experience')
   })
 })
 

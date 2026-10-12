@@ -1,7 +1,7 @@
 import { useFrame, useThree } from '@react-three/fiber'
 import { useEffect, useRef } from 'react'
 import { Vector3 } from 'three'
-import { getTour } from '../state/tourStore'
+import { SECTION_ORDER, getTour } from '../state/tourStore'
 import { poseAt } from './cameraPath'
 
 const EASE = 3.5 // 1/s; higher follows the scroll more tightly
@@ -37,7 +37,8 @@ export function useCameraRig(): void {
     // Portrait screens: back off along the view ray so the chip still fits horizontally.
     if (aspect < 1) g.position.sub(g.target).multiplyScalar(1 / aspect).add(g.target)
 
-    const hero = Math.max(0, 1 - (Number.isFinite(progress) ? progress : 0) * 4)
+    // Sway fades out by the second stop, wherever SECTION_ORDER puts it.
+    const hero = Math.max(0, 1 - (Number.isFinite(progress) ? progress : 0) * (SECTION_ORDER.length - 1))
     if (hero > 0) {
       g.position.applyAxisAngle(UP, Math.sin(clock.getElapsedTime() * 0.12) * SWAY * hero)
     }

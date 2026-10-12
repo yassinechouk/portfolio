@@ -1,6 +1,6 @@
 import { type Browser, chromium, expect, test } from '@playwright/test'
 
-const SECTIONS = ['hero', 'about', 'skills', 'projects', 'contact']
+const SECTIONS = ['hero', 'about', 'skills', 'experience', 'projects', 'contact']
 
 const SWIFTSHADER_ARGS = [
   '--use-gl=angle',
@@ -107,10 +107,11 @@ test('renders a canvas when WebGL is available', async ({ baseURL }) => {
   }
 })
 
-test('all five nav links fit within a 375px viewport', async ({ page }) => {
+test('all six nav links fit within a 375px viewport', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 667 })
   await page.goto('')
-  const box = await page.locator('nav a[href="#contact"]').boundingBox()
+  await expect(page.locator('nav a')).toHaveCount(SECTIONS.length)
+  const box = await page.locator(`nav a[href="#${SECTIONS[SECTIONS.length - 1]}"]`).boundingBox()
   expect(box).not.toBeNull()
   expect(box!.x + box!.width).toBeLessThanOrEqual(375)
 })
