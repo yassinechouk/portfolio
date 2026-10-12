@@ -1,4 +1,5 @@
 import { SECTION_ORDER, type SectionId, useTour } from '../state/tourStore'
+import ThemeToggle from './ThemeToggle'
 
 const LABELS: Record<SectionId, string> = {
   hero: 'Home',
@@ -22,6 +23,7 @@ export default function Nav() {
           </li>
         ))}
       </ul>
+      <ThemeToggle />
     </nav>
   )
 }

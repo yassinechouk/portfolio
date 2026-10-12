@@ -7,13 +7,14 @@ import labelFont from '@fontsource/jetbrains-mono/files/jetbrains-mono-latin-600
 import { getTour } from '../../state/tourStore'
 import { packageOpacity } from './fade'
 import { BODY_SIZE, BODY_THICKNESS } from './geometry'
+import type { ScenePalette } from './palette'
 
 const TOP = BODY_THICKNESS / 2
 
 type Fadeable = { fillOpacity: number }
 
-/** Dark package body with a pin-1 dot and an engraved label; fades as the camera dives in. */
-export function Package() {
+/** Package body with a pin-1 dot and an engraved label; fades as the camera dives in. */
+export function Package({ palette }: { palette: ScenePalette }) {
   const body = useRef<MeshStandardMaterial>(null)
   const dot = useRef<MeshStandardMaterial>(null)
   const name = useRef<Fadeable>(null)
@@ -36,18 +37,18 @@ export function Package() {
     <group>
       <mesh>
         <boxGeometry args={[BODY_SIZE, BODY_THICKNESS, BODY_SIZE]} />
-        <meshStandardMaterial ref={body} color="#15191f" metalness={0.15} roughness={0.7} transparent />
+        <meshStandardMaterial ref={body} color={palette.packageBody} metalness={0.15} roughness={0.7} transparent />
       </mesh>
       <mesh position={[-1.15, TOP + 0.001, 1.15]} rotation={[-Math.PI / 2, 0, 0]}>
         <circleGeometry args={[0.1, 32]} />
-        <meshStandardMaterial ref={dot} color="#2a3038" roughness={0.9} transparent />
+        <meshStandardMaterial ref={dot} color={palette.packageDot} roughness={0.9} transparent />
       </mesh>
       <Suspense fallback={null}>
         <group position={[0, TOP + 0.002, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-          <Text ref={name} font={labelFont} fontSize={0.3} letterSpacing={0.08} color="#7d8894" anchorX="center" anchorY="middle" position={[0, 0.2, 0]}>
+          <Text ref={name} font={labelFont} fontSize={0.3} letterSpacing={0.08} color={palette.label} anchorX="center" anchorY="middle" position={[0, 0.2, 0]}>
             YASSINE CHOUK
           </Text>
-          <Text ref={part} font={labelFont} fontSize={0.19} letterSpacing={0.12} color="#5c6672" anchorX="center" anchorY="middle" position={[0, -0.25, 0]}>
+          <Text ref={part} font={labelFont} fontSize={0.19} letterSpacing={0.12} color={palette.partLabel} anchorX="center" anchorY="middle" position={[0, -0.25, 0]}>
             YC-MCU32
           </Text>
         </group>

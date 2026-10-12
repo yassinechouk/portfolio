@@ -1,12 +1,10 @@
 import { assetUrl } from '../content/assetUrl'
+import { useTheme } from '../state/themeStore'
 
-/** Fixed full-viewport still of the chip, used when the live scene is unavailable. */
+const STILL = { light: 'chip-fallback-light.png', dark: 'chip-fallback.png' } as const
+
+/** Fixed full-viewport still of the chip (per theme), used when the live scene is unavailable. */
 export default function StaticChip() {
-  return (
-    <img
-      className="static-chip"
-      src={assetUrl('chip-fallback.png')}
-      alt="Illustration of a microcontroller chip"
-    />
-  )
+  const theme = useTheme()
+  return <img className="static-chip" src={assetUrl(STILL[theme])} alt="Illustration of a microcontroller chip" />
 }

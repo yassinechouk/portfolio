@@ -49,6 +49,3 @@ export const dieBlocks: DieBlock[] = [
   { groupId: 'tools', position: [0.06, 0, 0.34], size: [0.48, 0.085, 0.64] },
   { groupId: 'testing', position: [0.59, 0, 0.34], size: [0.46, 0.06, 0.64] },
 ]
-
-/** Single scene accent; matches the CSS `--accent` default. */
-export const ACCENT = '#00e5ff'

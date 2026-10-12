@@ -90,7 +90,8 @@ test('the CV link responds with 200 under /portfolio/', async ({ page, request }
   expect(cvResponse.headers()['content-type']).toContain('application/pdf')
 
   const src = await page.locator('img.static-chip').evaluate((i) => (i as HTMLImageElement).src)
-  expect(new URL(src).pathname).toBe('/portfolio/chip-fallback.png')
+  // Light is the default theme; e2e/theme.spec.ts covers the dark still.
+  expect(new URL(src).pathname).toBe('/portfolio/chip-fallback-light.png')
   const imgResponse = await request.get(src)
   expect(imgResponse.status()).toBe(200)
   expect(imgResponse.headers()['content-type']).toContain('image/png')

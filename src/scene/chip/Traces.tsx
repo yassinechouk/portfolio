@@ -1,9 +1,10 @@
 import { useFrame } from '@react-three/fiber'
-import { useEffect, useMemo, useRef } from 'react'
-import { AdditiveBlending, BufferAttribute, BufferGeometry, type ShaderMaterial } from 'three'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { AdditiveBlending, BufferAttribute, BufferGeometry, NormalBlending, type ShaderMaterial } from 'three'
 import { getTour } from '../../state/tourStore'
 import { createPulseUniforms, pulseFragmentShader, pulseVertexShader, type PulseUniforms } from '../shaders/pulse'
-import { ACCENT, BODY_SIZE, BODY_THICKNESS, PINS_PER_SIDE } from './geometry'
+import { BODY_SIZE, BODY_THICKNESS, PINS_PER_SIDE } from './geometry'
+import type { ScenePalette } from './palette'
 
 const HALF = BODY_SIZE / 2
 const PITCH = (BODY_SIZE * 0.85) / PINS_PER_SIDE
@@ -77,13 +78,22 @@ function buildTraces(lite: boolean): BufferGeometry {
 }
 
 /** Glowing traces on the package top, one per pin, with signal pulses travelling outward. */
-export function Traces({ lite, activePin }: { lite: boolean; activePin: number | null }) {
+export function Traces({ lite, activePin, palette }: { lite: boolean; activePin: number | null; palette: ScenePalette }) {
   const geometry = useMemo(() => buildTraces(lite), [lite])
-  const uniforms = useMemo(() => createPulseUniforms(ACCENT), [])
+  // Created once; a theme change only rewrites the colour and mode uniforms in the effect below.
+  const [uniforms] = useState(() => createPulseUniforms(palette.traces))
   const material = useRef<ShaderMaterial>(null)
   const boot = useRef({ section: getTour().activeSection, start: -Infinity })
 
   useEffect(() => () => geometry.dispose(), [geometry])
+
+  const opaque = palette.traceBlending === 'normal'
+  useEffect(() => {
+    if (!material.current) return
+    const u = material.current.uniforms as PulseUniforms
+    u.uAccent.value.set(palette.traces)
+    u.uOpaque.value = opaque ? 1 : 0
+  }, [palette.traces, opaque])
 
   useFrame(({ clock }) => {
     if (!material.current) return
@@ -109,7 +119,7 @@ export function Traces({ lite, activePin }: { lite: boolean; activePin: number |
         uniforms={uniforms}
         transparent
         depthWrite={false}
-        blending={AdditiveBlending}
+        blending={opaque ? NormalBlending : AdditiveBlending}
       />
     </mesh>
   )

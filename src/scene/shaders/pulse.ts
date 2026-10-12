@@ -27,6 +27,7 @@ uniform float uTime;
 uniform vec3 uAccent;
 uniform float uActive;
 uniform float uBoot;
+uniform float uOpaque;
 varying float vDist;
 varying float vTrace;
 varying float vPhase;
@@ -42,7 +43,11 @@ void main() {
   float bootD = (vDist - uBoot) * 10.0;
   float boot = (uBoot >= 0.0 && uBoot <= 1.2) ? exp(-bootD * bootD) : 0.0;
   float intensity = 0.32 + isActive * 0.4 + pulse * (0.9 + isActive * 1.4) + boot * 1.6;
-  gl_FragColor = vec4(uAccent * intensity, clamp(intensity, 0.0, 1.0));
+  // Additive (dark page): brightness scales the colour. Opaque (light page, normal blending):
+  // the colour stays solid, coverage follows the intensity and pulse heads lift towards white.
+  vec3 glow = uAccent * intensity;
+  vec3 solid = mix(uAccent, vec3(1.0), clamp((intensity - 1.0) * 0.3, 0.0, 0.45));
+  gl_FragColor = vec4(mix(glow, solid, uOpaque), clamp(intensity * (1.0 + 0.6 * uOpaque), 0.0, 1.0));
 }
 `
 
@@ -51,6 +56,8 @@ export type PulseUniforms = {
   uAccent: { value: Color }
   uActive: { value: number }
   uBoot: { value: number }
+  /** 1 for solid traces under normal blending (light theme), 0 for additive glow. */
+  uOpaque: { value: number }
 }
 
 export function createPulseUniforms(accent: string): PulseUniforms {
@@ -59,5 +66,6 @@ export function createPulseUniforms(accent: string): PulseUniforms {
     uAccent: { value: new Color(accent) },
     uActive: { value: -1 },
     uBoot: { value: -1 },
+    uOpaque: { value: 0 },
   }
 }

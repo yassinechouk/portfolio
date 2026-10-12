@@ -9,7 +9,7 @@ export default function Hero() {
         <p className="badge">{availability}</p>
         <h1 id="hero-title">{name}</h1>
         <p className="hero-role">
-          <span className="hero-role-title">{role}</span>
+          <span className="hero-role-title">{role}</span>{' '}
           <span className="hero-affiliation">{affiliation}</span>
         </p>
         <p className="hero-headline">{headline}</p>

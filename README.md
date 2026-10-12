@@ -35,10 +35,10 @@ src/
     chip/    chip geometry, package, pins, die, traces
     shaders/ trace pulse shader
   sections/  Nav, Hero, About, Skills, Experience, Projects, Contact (+ ContactForm, Lightbox)
-  state/     tourStore, the shared channel between sections and scene
-  styles/    tokens.css (design tokens), global.css
-e2e/         Playwright specs (smoke.spec.ts, profile.spec.ts)
-public/      cv.pdf, favicon, og-image, chip-fallback.png, projects/**, experience/
+  state/     tourStore and themeStore, the shared channels between sections and scene
+  styles/    tokens.css (design tokens per theme), global.css
+e2e/         Playwright specs (smoke.spec.ts, profile.spec.ts, theme.spec.ts)
+public/      cv.pdf, favicon, og-image, chip-fallback.png (dark), chip-fallback-light.png, projects/**, experience/
 ```
 
 ## Editing content
@@ -71,27 +71,35 @@ Add the file as `public/profile.jpg` and set `photo: 'profile.jpg'` in `about` i
 
 Until a real key is set, the Contact section shows an `Email me` button instead of the form, and the deploy workflow refuses to publish because the placeholder carries a `TODO(owner)` marker. The key is a public identifier by design (Web3Forms keys are meant for client-side use).
 
+## Theme
+
+The site always opens in the **light** theme, whatever the visitor's system preference. The sun/moon button at the end of the nav switches to the dark theme (and back) for the current visit only: the choice lives in memory (`src/state/themeStore.ts`), nothing is written to cookies or web storage, and a reload opens light again.
+
+- `index.html` ships `<html data-theme="light">` and the light `theme-color`, so there is no flash. `src/main.tsx` calls `startThemeSync()`, which keeps `data-theme` and the `theme-color` meta in step with the store.
+- CSS colours live only in `src/styles/tokens.css`: a shared `:root` block (fonts, radius, spacing), a light block (`:root, :root[data-theme='light']`) and a dark block (`:root[data-theme='dark']`). Every colour in `global.css` is a `var(--token)` (or a `color-mix` of one); a test fails on any raw colour outside `tokens.css`, on a token missing from either theme, or on a text pair under 4.5:1 (graphics under 3:1).
+- The 3D scene takes its colours from `src/scene/chip/palette.ts` (`scenePalette(theme)`): package, pins, die blocks, traces, label and lights for each theme. The scene reads the theme from the store and updates its materials in place; the camera path and the package fade are the same in both themes.
+- Page backgrounds are in `THEME_BACKGROUND` in `src/state/themeStore.ts` (the `theme-color` value); a test keeps them equal to `--bg` in `tokens.css`, and the scene accent equal to `--accent`.
+- Images per theme: the static fallback is `public/chip-fallback-light.png` in light and `public/chip-fallback.png` in dark (both are screenshots of the real scene at the hero stop); `public/og-image.png` (the link preview) shows the light chip.
+
 ## Changing the accent color
 
 These places carry the colour and must match:
 
-1. `--accent` in `src/styles/tokens.css` (all CSS derives from it, including tints via `color-mix`)
-2. `ACCENT` in `src/scene/chip/geometry.ts` (the 3D scene reads this constant)
-3. `public/favicon.svg` (the colour is hard-coded as `#00e5ff` in the SVG)
-4. `public/og-image.png` (a raster image; regenerate it)
+1. `--accent` in `src/styles/tokens.css`, once per theme (all CSS derives from it, including tints via `color-mix`). Light is a deep teal (`#006d79`, readable on white), dark is cyan (`#00e5ff`).
+2. `accent` (and the related trace, highlight and edge colours) for each theme in `src/scene/chip/palette.ts`; a test checks it against `--accent`.
+3. `public/favicon.svg` (cyan `#00e5ff` on a dark square, which reads on light and dark tabs alike; hard-coded in the SVG)
+4. `public/og-image.png` (a raster image of the light theme; regenerate it)
 
-`theme-color` in `index.html` is the page background (`#05080d`), not the accent, so it does not change with the accent.
-
-Default is `#00e5ff`.
+`theme-color` in `index.html` is the light page background (`#f4f6f8`), not the accent; the store switches it to `#05080d` in dark.
 
 ## Fallbacks
 
-The 3D layer degrades gracefully. With no WebGL, a lost WebGL context, or a render error (caught by the error boundary), the page shows a static chip image (`public/chip-fallback.png`). With `prefers-reduced-motion`, the static image is shown instead of the animated scene. The content stays fully usable in every case.
+The 3D layer degrades gracefully. With no WebGL, a lost WebGL context, or a render error (caught by the error boundary), the page shows a static chip image (`public/chip-fallback-light.png`, or `public/chip-fallback.png` in the dark theme). With `prefers-reduced-motion`, the static image is shown instead of the animated scene. The content stays fully usable in every case.
 
 ## Testing
 
 - Unit and component tests live next to the code (`*.test.ts(x)`) and run with `npm test`.
-- End-to-end tests are in `e2e/`: `smoke.spec.ts` (meta tags, nav, fallbacks) and `profile.spec.ts` (experience, images and CV served as the right types, contact links, 375 px overflow, contact form, lightbox). `npm run test:e2e` builds, previews and runs them. Locally run `npx playwright install chromium` once. In sandboxes with a pre-installed Chromium, set `PW_CHROMIUM_PATH` to its executable instead.
+- End-to-end tests are in `e2e/`: `smoke.spec.ts` (meta tags, nav, fallbacks), `profile.spec.ts` (experience, images and CV served as the right types, contact links, 375 px overflow, contact form, lightbox) and `theme.spec.ts` (light by default even with a dark OS preference, the toggle, `theme-color`, the fallback per theme, the toggle fitting at 375 px, nothing stored). `npm run test:e2e` builds, previews and runs them. Locally run `npx playwright install chromium` once. In sandboxes with a pre-installed Chromium, set `PW_CHROMIUM_PATH` to its executable instead.
 
 CI (`.github/workflows/ci.yml`) runs lint, typecheck, unit tests, build and e2e on every push and pull request.
 
@@ -114,5 +122,5 @@ For a custom domain:
 - [ ] After pasting the Web3Forms key, run `npm run test:e2e` locally once: the contact e2e switches to the mocked real-form branch automatically.
 - [ ] Add the profile photo (`public/profile.jpg`, `about.photo`).
 - [ ] Make the repository public (or choose another host).
-- [ ] Decide on the accent color (see above).
+- [ ] Decide on the accent colours and the light/dark palettes (see Theme and Changing the accent color).
 - [ ] Update `og:url` / `og:image` in `index.html` if the final URL differs.

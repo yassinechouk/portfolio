@@ -123,7 +123,7 @@ export default function ContactForm({ accessKey, email, fetchImpl }: Props) {
       </button>
       <div className="form-status" role="status" aria-live="polite">
         {summary !== '' && <p>{summary}</p>}
-        {status === 'success' && <p>Thank you, your message was sent. I will reply soon.</p>}
+        {status === 'success' && <p className="form-success">Thank you, your message was sent. I will reply soon.</p>}
         {status === 'error' && (
           <p className="field-error">
             Sorry, the message could not be sent. Please try again or email me at{' '}

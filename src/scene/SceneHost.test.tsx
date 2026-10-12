@@ -64,7 +64,7 @@ describe('SceneHost', () => {
     render(<SceneHost />)
     const src = screen.getByAltText(CHIP_ALT).getAttribute('src') ?? ''
     expect(src.startsWith(import.meta.env.BASE_URL)).toBe(true)
-    expect(src.endsWith('chip-fallback.png')).toBe(true)
+    expect(src.endsWith('chip-fallback-light.png')).toBe(true) // light is the default theme
   })
 
   it('switches to the static chip when webglcontextlost fires on the wrapper', async () => {

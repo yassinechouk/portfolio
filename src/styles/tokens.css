@@ -1,12 +1,44 @@
+/* Theme-independent tokens. */
 :root {
-  --accent: #00e5ff;
-  --bg: #05080d;
-  --text: #e6edf3;
-  --text-muted: #9aa7b4;
-  --panel: rgba(8, 14, 22, 0.78);
-  --panel-border: rgba(230, 237, 243, 0.14);
   --font-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
   --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --radius: 8px;
   --space: 1rem;
+}
+
+/* Light is the default for every visit (index.html ships data-theme="light"). */
+:root,
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg: #f4f6f8;
+  --text: #0f1b24;
+  --text-muted: #4a5a66;
+  --accent: #006d79;
+  --on-accent: #ffffff;
+  --panel: rgba(255, 255, 255, 0.86);
+  --panel-border: rgba(15, 27, 36, 0.12);
+  --shadow: 0 1px 2px rgba(15, 27, 36, 0.05), 0 8px 28px rgba(15, 27, 36, 0.08);
+  --scrim: rgba(15, 27, 36, 0.72);
+  --field-bg: rgba(255, 255, 255, 0.9);
+  --photo-bg: #e9eef2;
+  --danger: #b42318;
+  --success: #116b3f;
+}
+
+/* The toggle in the nav switches to this for the current visit only. */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #05080d;
+  --text: #e6edf3;
+  --text-muted: #9aa7b4;
+  --accent: #00e5ff;
+  --on-accent: #05080d;
+  --panel: rgba(8, 14, 22, 0.78);
+  --panel-border: rgba(230, 237, 243, 0.14);
+  --shadow: none;
+  --scrim: rgba(0, 0, 0, 0.85);
+  --field-bg: rgba(5, 8, 13, 0.7);
+  --photo-bg: #060b12;
+  --danger: #ff7b72;
+  --success: #3fb950;
 }

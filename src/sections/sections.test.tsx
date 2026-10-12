@@ -25,6 +25,12 @@ describe('sections', () => {
     }
   })
 
+  it('the hero reads the role, then a space, then the affiliation', () => {
+    const { container } = render(<App />)
+    const role = container.querySelector('#hero .hero-role') as HTMLElement
+    expect(role.textContent).toBe(`${content.about.role} ${content.about.affiliation}`)
+  })
+
   it('nav marks the active section with aria-current', () => {
     render(<App />)
     const nav = screen.getByRole('navigation')

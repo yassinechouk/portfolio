@@ -2,7 +2,8 @@ import { Edges } from '@react-three/drei'
 import { useEffect, useMemo } from 'react'
 import { BufferAttribute, BufferGeometry } from 'three'
 import type { SkillGroup } from '../../content/types'
-import { ACCENT, BODY_SIZE, PIN_LENGTH, PINS_PER_SIDE, dieBlocks, pinPositions } from './geometry'
+import { BODY_SIZE, PIN_LENGTH, PINS_PER_SIDE, dieBlocks, pinPositions } from './geometry'
+import type { ScenePalette } from './palette'
 
 const DIE_SIZE = 1.9
 const DIE_HALF = DIE_SIZE / 2
@@ -24,7 +25,7 @@ function buildBondWires(): BufferGeometry {
 }
 
 /** Silicon die inside the package; each block is one skill group, the active one glows. */
-export function Die({ activeGroup }: { activeGroup: SkillGroup['id'] | null }) {
+export function Die({ activeGroup, palette }: { activeGroup: SkillGroup['id'] | null; palette: ScenePalette }) {
   const wires = useMemo(() => buildBondWires(), [])
   useEffect(() => () => wires.dispose(), [wires])
 
@@ -32,26 +33,26 @@ export function Die({ activeGroup }: { activeGroup: SkillGroup['id'] | null }) {
     <group>
       <mesh position={[0, -0.01, 0]}>
         <boxGeometry args={[DIE_SIZE, 0.04, DIE_SIZE]} />
-        <meshStandardMaterial color="#1c2530" metalness={0.4} roughness={0.5} />
+        <meshStandardMaterial color={palette.dieBase} metalness={0.4} roughness={0.5} />
       </mesh>
-      {dieBlocks.map((block) => {
+      {dieBlocks.map((block, i) => {
         const active = block.groupId === activeGroup
         return (
           <mesh key={block.groupId} position={[block.position[0], 0.01 + block.size[1] / 2, block.position[2]]}>
             <boxGeometry args={block.size} />
             <meshStandardMaterial
-              color="#0d1218"
-              emissive={ACCENT}
-              emissiveIntensity={active ? 0.45 : 0.06}
-              metalness={0.3}
+              color={active ? palette.dieBlockActive : palette.dieBlocks[i]}
+              emissive={palette.dieGlow}
+              emissiveIntensity={active ? palette.dieGlowActive : palette.dieGlowIdle}
+              metalness={palette.dieMetalness}
               roughness={0.6}
             />
-            <Edges color={ACCENT} transparent opacity={active ? 1 : 0.45} />
+            <Edges color={palette.dieEdge} transparent opacity={active ? 1 : 0.45} />
           </mesh>
         )
       })}
       <lineSegments geometry={wires}>
-        <lineBasicMaterial color={ACCENT} transparent opacity={0.35} />
+        <lineBasicMaterial color={palette.bondWires} transparent opacity={0.35} />
       </lineSegments>
     </group>
   )
