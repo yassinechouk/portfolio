@@ -464,3 +464,117 @@ ul {
   height: 100%;
   object-fit: cover;
 }
+
+.contact-panel {
+  width: min(100%, 52rem);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  gap: 1.5rem 2rem;
+  align-items: start;
+}
+
+@media (max-width: 640px) {
+  .contact-panel {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.contact-links {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0 0 1rem;
+  overflow-wrap: anywhere;
+}
+
+.contact-direct p {
+  margin: 0;
+}
+
+.contact-form {
+  display: grid;
+  gap: 0.9rem;
+  position: relative;
+}
+
+.field {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.field label {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.field input,
+.field textarea {
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  font: inherit;
+  color: var(--text);
+  background: rgba(5, 8, 13, 0.7);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius);
+}
+
+.field textarea {
+  resize: vertical;
+}
+
+.field [aria-invalid='true'] {
+  border-color: var(--accent);
+  border-style: dashed;
+}
+
+.field-error {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text);
+}
+
+.field-error::before {
+  content: '! ';
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.honeypot {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+}
+
+.contact-form .button {
+  justify-self: start;
+  font: inherit;
+  font-family: var(--font-mono);
+  cursor: pointer;
+}
+
+.contact-form .button:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.form-status p {
+  margin: 0;
+}
+
+.form-status:empty {
+  display: none;
+}
+
+.privacy {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.contact-fallback p {
+  margin: 0 0 0.75rem;
+  color: var(--text-muted);
+}

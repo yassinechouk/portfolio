@@ -77,6 +77,20 @@ describe('sections', () => {
     )
   })
 
+  it('Contact shows the tel link, email, LinkedIn, GitHub and CV link', () => {
+    const { container } = render(<App />)
+    const contact = container.querySelector('section#contact') as HTMLElement
+    const c = within(contact)
+    expect(c.getByRole('link', { name: content.contact.phone })).toHaveAttribute('href', 'tel:+21621691995')
+    expect(c.getByRole('link', { name: content.contact.email })).toBeInTheDocument()
+    expect(c.getByRole('link', { name: 'LinkedIn' })).toHaveAttribute('href', content.about.links.linkedin)
+    expect(c.getByRole('link', { name: 'GitHub' })).toHaveAttribute('href', content.about.links.github)
+    expect(c.getByRole('link', { name: /download cv/i })).toHaveAttribute(
+      'href',
+      import.meta.env.BASE_URL + content.about.links.cv,
+    )
+  })
+
   it('clicking a skill group sets activeSkillGroup', () => {
     render(<App />)
     const group = content.skills[2]
