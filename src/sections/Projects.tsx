@@ -6,7 +6,9 @@ import ProjectDetail from './ProjectDetail'
 
 export default function Projects() {
   const activeId = useTour((t) => t.activeProjectId)
-  const active = content.projects.find((p) => p.id === activeId)
+  // The detail is always rendered (first project until one is chosen or scrolled to),
+  // so the page height does not jump when the tour first selects a project.
+  const active = content.projects.find((p) => p.id === activeId) ?? content.projects[0]
   const inProjects = useTour((t) => t.activeSection === 'projects')
   const itemRefs = useRef(new Map<string, HTMLLIElement>())
 
@@ -62,13 +64,13 @@ export default function Projects() {
             >
               <ProjectCard
                 project={project}
-                selected={project.id === activeId}
+                selected={project.id === active.id}
                 onSelect={(id) => setTour({ activeProjectId: id })}
               />
             </li>
           ))}
         </ul>
-        {active ? <ProjectDetail key={active.id} project={active} /> : <p className="meta">Select a project for details.</p>}
+        <ProjectDetail key={active.id} project={active} />
       </div>
     </section>
   )

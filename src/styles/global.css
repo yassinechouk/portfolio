@@ -401,8 +401,10 @@ ul {
 
 .job-figure img {
   display: block;
-  max-width: 100%;
-  height: auto;
+  width: 100%;
+  /* Reserve the box before the lazy image loads so it cannot shift the page. */
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
   border-radius: var(--radius);
 }
 

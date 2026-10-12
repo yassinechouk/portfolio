@@ -1,21 +1,16 @@
-import { expect, type Page, test } from '@playwright/test'
+import { type Browser, expect, test } from '@playwright/test'
 import { content } from '../src/content'
 import { isPlaceholderKey } from '../src/sections/contactForm'
 
 const { about, contact, experience, projects } = content
 
-// On a tall viewport the Projects link scrolls to the very end of the page, so no
-// project is auto-selected; pick one the way a visitor would.
-async function selectFirstProject(page: Page) {
-  await page.locator('nav a[href="#projects"]').click()
-  await page.getByRole('button', { name: projects[0].title }).click()
-  await expect(page.locator('.project-detail h3')).toHaveText(projects[0].title)
-}
+const SECTION_IDS = ['hero', 'about', 'skills', 'experience', 'projects', 'contact']
 
 test('the Experience section lists both internships', async ({ page }) => {
   await page.goto('')
   const section = page.locator('#experience')
   await expect(section.getByRole('heading', { level: 2, name: 'Experience' })).toBeVisible()
+  expect(experience.length).toBe(2)
   await expect(section.locator('article.job')).toHaveCount(experience.length)
   for (const job of experience) {
     const article = section.locator('article.job').filter({ has: page.getByRole('heading', { level: 3, name: job.role }) })
@@ -23,7 +18,6 @@ test('the Experience section lists both internships', async ({ page }) => {
     await expect(article).toContainText(job.period)
     await expect(article.locator('.job-outcomes li')).toHaveCount(job.outcomes.length)
   }
-  expect(experience.length).toBe(2)
 })
 
 test('every project media and experience image responds 200 with an image/webp content type under /portfolio/', async ({
@@ -70,9 +64,9 @@ test('no horizontal overflow at 375px', async ({ page }) => {
   const scrollWidth = () => page.evaluate(() => document.documentElement.scrollWidth)
   expect(await scrollWidth()).toBeLessThanOrEqual(375)
 
-  // With a project detail and its gallery rendered.
-  await selectFirstProject(page)
-  await expect(page.locator('.project-detail .gallery-button').first()).toBeVisible()
+  // With the project detail and its gallery rendered.
+  await page.locator('nav a[href="#projects"]').click()
+  await expect(page.locator('.project-detail .gallery-button').first()).toBeAttached()
   expect(await scrollWidth()).toBeLessThanOrEqual(375)
 })
 
@@ -106,7 +100,6 @@ test('the contact form submits to a mocked Web3Forms route and shows the thank-y
 
 test('the lightbox opens from a project detail image and Escape closes it', async ({ page }) => {
   await page.goto('')
-  await selectFirstProject(page)
   const opener = page.locator('.project-detail .gallery-button').first()
   await expect(opener).toBeVisible()
   await expect(page.getByRole('dialog')).toHaveCount(0)
@@ -117,6 +110,7 @@ test('the lightbox opens from a project detail image and Escape closes it', asyn
   await expect(dialog.locator('img')).toBeVisible()
   await page.keyboard.press('Escape')
   await expect(dialog).toHaveCount(0)
+  await expect(opener).toBeFocused()
 
   // Escape still closes after a click inside the dialog.
   await opener.click()
@@ -125,4 +119,32 @@ test('the lightbox opens from a project detail image and Escape closes it', asyn
   await expect(dialog).toBeVisible()
   await page.keyboard.press('Escape')
   await expect(dialog).toHaveCount(0)
+  await expect(opener).toBeFocused()
+})
+
+async function expectColdClicksLandOnTheirSection(browser: Browser, baseURL: string | undefined, viewport?: { width: number; height: number }) {
+  for (const id of SECTION_IDS) {
+    // A fresh load per link, clicked immediately: late-loading content must not shift the target.
+    const context = await browser.newContext({ baseURL, viewport })
+    try {
+      const page = await context.newPage()
+      await page.goto('')
+      const link = page.locator(`nav a[href="#${id}"]`)
+      await link.click()
+      await expect(link, id).toHaveAttribute('aria-current', 'location')
+      if (id === 'projects') {
+        await expect(page.locator('.project-detail h3')).toHaveText(projects[0].title)
+      }
+    } finally {
+      await context.close()
+    }
+  }
+}
+
+test('a cold click on each nav link right after load ends on its own section', async ({ browser, baseURL }) => {
+  await expectColdClicksLandOnTheirSection(browser, baseURL)
+})
+
+test('a cold click on each nav link right after load ends on its own section at 375px', async ({ browser, baseURL }) => {
+  await expectColdClicksLandOnTheirSection(browser, baseURL, { width: 375, height: 667 })
 })
