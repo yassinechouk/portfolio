@@ -5,11 +5,11 @@ export type CameraPose = { position: Vec3; target: Vec3 }
 
 // Chip frame: ~4x4 slab centred at the origin, label faces +y, pins ~0.5 outside each edge.
 export const waypoints: Record<SectionId, CameraPose> = {
-  hero: { position: [6, 4, 8], target: [0, 0, 0] },
-  about: { position: [0.5, 4, 2.5], target: [0, 0, 0] },
-  skills: { position: [0.3, 1.6, 0.9], target: [0, 0, 0] },
-  projects: { position: [0, 0.8, 5], target: [0, 0, 2.2] },
-  contact: { position: [-3, 6, 9], target: [0, 0, 0] },
+  hero: { position: [5.5, 3.8, 7], target: [0, 0, 0] },
+  about: { position: [0.6, 2.6, 2.4], target: [0, 0.2, 0] },
+  skills: { position: [0.6, 1.9, 1.6], target: [0, 0, 0.05] },
+  projects: { position: [2.6, 1.5, 4.4], target: [-0.2, 0, 2] },
+  contact: { position: [-4, 5.5, 8], target: [0, 0, 0] },
 }
 
 const smoothstep = (t: number): number => t * t * (3 - 2 * t)
