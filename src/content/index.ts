@@ -3,13 +3,25 @@ import type { Content } from './types'
 export const content: Content = {
   about: {
     name: 'Yassine Chouk',
-    eyebrow: 'Embedded · Real-time · Firmware',
+    role: 'Embedded Systems Engineering Student',
+    affiliation: 'INSAT, Tunisia',
+    availability: 'Seeking an embedded firmware internship',
     headline: 'I make microcontrollers keep their promises.',
     tagline: 'Firmware that meets its deadlines, from bare-metal bootloaders to RTOS-driven motor control.',
-    paragraphs: [
-      "I'm an engineering student at INSAT in Tunis who likes the part of software where a late answer is a wrong answer. I write C and C++ firmware for STM32, ESP32-S3 and TI C2000 chips, and I like proving it works on a bench with an oscilloscope, not just in a simulator.",
-      'My favourite problems sit between the code and the hardware: making an update survive a power cut, catching a missed deadline before the motor does, fitting a model into a few hundred kilobytes.',
-      "Right now I'm looking for an embedded firmware internship where I can keep building things that have to be right the first time.",
+    lead: "I'm an embedded systems engineering student at INSAT in Tunis. I write C and C++ firmware for STM32, ESP32-S3 and TI C2000 microcontrollers, and I prove it works on a real bench, not only in a simulator.",
+    blocks: [
+      {
+        title: 'What I build',
+        text: 'Real-time firmware and the tools around it: a timing analyser for FreeRTOS, a bootloader that rolls back failed updates by itself, and machine-learning models that run on a microcontroller.',
+      },
+      {
+        title: 'How I work',
+        text: 'I design for failure first (power cuts, missed deadlines, bad updates), then check the result with hardware-in-the-loop tests, an oscilloscope and host-side unit tests.',
+      },
+      {
+        title: "What I'm looking for",
+        text: 'An embedded firmware internship where I can keep building systems that have to be right the first time.',
+      },
     ],
     highlights: ['Real-time firmware', 'Bootloaders & OTA', 'Hardware-in-the-loop testing'],
     education: 'INSAT, Engineering degree in Industrial IT & Automation, 2023 to 2028 (expected)',

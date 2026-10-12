@@ -36,10 +36,13 @@ export type ExperienceItem = {
 export type Content = {
   about: {
     name: string
-    eyebrow: string
+    role: string
+    affiliation: string
+    availability: string
     headline: string
     tagline: string
-    paragraphs: string[]
+    lead: string
+    blocks: { title: string; text: string }[]
     highlights: string[]
     education: string
     spokenLanguages: string[]

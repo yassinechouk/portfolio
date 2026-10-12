@@ -39,10 +39,16 @@ const skills = (): SkillGroup[] =>
 const valid = (): Content => ({
   about: {
     name: 'Test Person',
-    eyebrow: 'Eyebrow',
+    role: 'Student',
+    affiliation: 'INSAT',
+    availability: 'Seeking an internship',
     headline: 'Embedded engineer',
     tagline: 'Tagline.',
-    paragraphs: ['Bio.'],
+    lead: 'Lead.',
+    blocks: [
+      { title: 'One', text: 'First.' },
+      { title: 'Two', text: 'Second.' },
+    ],
     highlights: ['a', 'b', 'c'],
     education: 'INSAT',
     spokenLanguages: ['English'],
@@ -61,6 +67,42 @@ const valid = (): Content => ({
 describe('validateContent', () => {
   it('accepts valid content', () => {
     expect(validateContent(valid())).toEqual([])
+  })
+
+  it('rejects an empty lead', () => {
+    const c = valid()
+    c.about.lead = '  '
+    const errors = validateContent(c)
+    expect(errors).toHaveLength(1)
+    expect(errors[0]).toContain('about.lead')
+  })
+
+  it('rejects fewer than 2 or more than 4 blocks', () => {
+    const one = valid()
+    one.about.blocks = one.about.blocks.slice(0, 1)
+    expect(validateContent(one)).toEqual([expect.stringContaining('about.blocks')])
+    const five = valid()
+    five.about.blocks = ['a', 'b', 'c', 'd', 'e'].map((t) => ({ title: t, text: t }))
+    expect(validateContent(five)).toEqual([expect.stringContaining('about.blocks')])
+  })
+
+  it('rejects a block with an empty title or text', () => {
+    const c = valid()
+    c.about.blocks[0].title = ''
+    c.about.blocks[1].text = ' '
+    const errors = validateContent(c)
+    expect(errors).toHaveLength(2)
+    expect(errors[0]).toContain('about.blocks[0]')
+  })
+
+  it('rejects an empty role or availability', () => {
+    const c = valid()
+    c.about.role = ''
+    c.about.availability = ' '
+    const errors = validateContent(c)
+    expect(errors).toHaveLength(2)
+    expect(errors.join()).toContain('about.role')
+    expect(errors.join()).toContain('about.availability')
   })
 
   it('rejects fewer than 3 projects', () => {

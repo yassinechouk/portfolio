@@ -29,25 +29,50 @@ describe('ProfilePhoto', () => {
 })
 
 describe('Hero', () => {
-  it('shows the eyebrow, name, headline, tagline and three actions', () => {
+  it('has exactly one h1, the name', () => {
+    render(<Hero />)
+    const h1s = screen.getAllByRole('heading', { level: 1 })
+    expect(h1s).toHaveLength(1)
+    expect(h1s[0]).toHaveTextContent(content.about.name)
+    expect(h1s[0].textContent).toBe(content.about.name)
+  })
+
+  it('shows the availability badge, role and affiliation', () => {
     const { about } = content
     render(<Hero />)
-    expect(screen.getByText(about.eyebrow)).toBeInTheDocument()
-    expect(screen.getByText(about.name)).toBeInTheDocument()
-    expect(screen.getByRole('heading', { level: 1, name: about.headline })).toBeInTheDocument()
+    expect(screen.getByText(about.availability)).toBeInTheDocument()
+    expect(screen.getByText(about.role)).toBeInTheDocument()
+    expect(screen.getByText(about.affiliation)).toBeInTheDocument()
+  })
+
+  it('shows the headline as a paragraph, not a heading, plus the tagline', () => {
+    const { about } = content
+    render(<Hero />)
+    expect(screen.queryByRole('heading', { name: about.headline })).toBeNull()
+    expect(screen.getByText(about.headline).tagName).toBe('P')
     expect(screen.getByText(about.tagline)).toBeInTheDocument()
+  })
+
+  it('keeps the three actions', () => {
+    render(<Hero />)
     expect(screen.getByRole('link', { name: 'See my work' })).toHaveAttribute('href', '#projects')
-    expect(screen.getByRole('link', { name: 'Download CV' })).toHaveAttribute('href', assetUrl(about.links.cv))
+    expect(screen.getByRole('link', { name: 'Download CV' })).toHaveAttribute('href', assetUrl(content.about.links.cv))
     expect(screen.getByRole('link', { name: 'Say hello' })).toHaveAttribute('href', '#contact')
   })
 })
 
 describe('About', () => {
-  it('shows the paragraphs, highlights, education and spoken languages', () => {
+  it('shows the lead, the three blocks, highlights, education and spoken languages', () => {
     const { about } = content
     render(<About />)
     expect(screen.getByRole('heading', { level: 2, name: "Hi, I'm Yassine." })).toBeInTheDocument()
-    for (const p of about.paragraphs) expect(screen.getByText(p)).toBeInTheDocument()
+    expect(screen.getByText(about.lead)).toBeInTheDocument()
+    expect(screen.getAllByRole('heading', { level: 3 }).map((h) => h.textContent)).toEqual([
+      'What I build',
+      'How I work',
+      "What I'm looking for",
+    ])
+    for (const b of about.blocks) expect(screen.getByText(b.text)).toBeInTheDocument()
     for (const h of about.highlights) expect(screen.getByText(h)).toBeInTheDocument()
     expect(screen.getByText(about.education)).toBeInTheDocument()
     for (const l of about.spokenLanguages) expect(screen.getByText(l)).toBeInTheDocument()

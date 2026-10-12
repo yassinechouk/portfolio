@@ -6,6 +6,8 @@ const MIN_METRICS = 2
 const MAX_METRICS = 4
 const MIN_FEATURED = 1
 const MAX_FEATURED = 3
+const MIN_BLOCKS = 2
+const MAX_BLOCKS = 4
 const PHONE = /^\+\d[\d ]{6,}$/
 const SKILL_IDS: SkillGroupId[] = ['languages', 'platforms', 'firmware', 'protocols', 'tools', 'testing']
 
@@ -16,6 +18,19 @@ export function validateContent(c: Content): string[] {
   if (c.projects.length < MIN_PROJECTS || c.projects.length > MAX_PROJECTS) {
     errors.push(`projects: expected ${MIN_PROJECTS}-${MAX_PROJECTS}, got ${c.projects.length}`)
   }
+
+  const { about } = c
+  if (about.role.trim() === '') errors.push('about.role: must be non-empty')
+  if (about.availability.trim() === '') errors.push('about.availability: must be non-empty')
+  if (about.lead.trim() === '') errors.push('about.lead: must be non-empty')
+  if (about.blocks.length < MIN_BLOCKS || about.blocks.length > MAX_BLOCKS) {
+    errors.push(`about.blocks: expected ${MIN_BLOCKS}-${MAX_BLOCKS}, got ${about.blocks.length}`)
+  }
+  about.blocks.forEach((b, i) => {
+    if (b.title.trim() === '' || b.text.trim() === '') {
+      errors.push(`about.blocks[${i}]: title and text must be non-empty`)
+    }
+  })
 
   if (c.experience.length < 1) errors.push('experience: expected at least 1 entry')
 
