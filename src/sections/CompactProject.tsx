@@ -26,7 +26,9 @@ export default function CompactProject({ project, active, onSelect }: Props) {
         ))}
       </ul>
       <p className="project-links">
-        <a href={project.repoUrl}>Repository</a>
+        <a href={project.repoUrl} aria-label={`${project.title} repository`}>
+          Repository
+        </a>
         {project.demoUrl ? <a href={project.demoUrl}>Live demo</a> : null}
       </p>
     </article>

@@ -50,7 +50,9 @@ export default function FeaturedProject({ project, active, onSelect }: Props) {
         </p>
       ) : null}
       <p className="project-links">
-        <a href={project.repoUrl}>Repository</a>
+        <a href={project.repoUrl} aria-label={`${project.title} repository`}>
+          Repository
+        </a>
         {project.demoUrl ? <a href={project.demoUrl}>Live demo</a> : null}
       </p>
       <Lightbox item={open && picture ? picture : null} onClose={() => setOpen(false)} fallbackFocus={() => headingRef.current} />

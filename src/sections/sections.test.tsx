@@ -167,7 +167,7 @@ describe('project tiers', () => {
       const imgs = c.getAllByRole('img')
       expect(imgs).toHaveLength(1)
       expect(imgs[0].getAttribute('src')).toBe(import.meta.env.BASE_URL + p.media[0].src)
-      expect(c.getByRole('link', { name: /repository/i })).toHaveAttribute('href', p.repoUrl)
+      expect(c.getByRole('link', { name: `${p.title} repository` })).toHaveAttribute('href', p.repoUrl)
     }
   })
 
@@ -180,7 +180,7 @@ describe('project tiers', () => {
       expect(c.getByText(p.summary)).toBeInTheDocument()
       expect(p.tags).toHaveLength(3)
       for (const tag of p.tags) expect(c.getByText(tag)).toBeInTheDocument()
-      expect(c.getByRole('link', { name: /repository/i })).toHaveAttribute('href', p.repoUrl)
+      expect(c.getByRole('link', { name: `${p.title} repository` })).toHaveAttribute('href', p.repoUrl)
       expect(el.querySelector('img')).toBeNull()
       expect(el.querySelector('.proof-chips')).toBeNull()
       expect(el).not.toHaveTextContent(/Role:/)
@@ -283,12 +283,13 @@ describe('projects follow scroll', () => {
     expect(observed.map((el) => el.querySelector('h3, h4')?.textContent)).toEqual(content.projects.map((p) => p.title))
     const callback = targets.get(observed[0])!
     const mid = window.innerHeight / 2
-    const entry = (target: Element, top: number) =>
-      ({
-        target,
-        isIntersecting: true,
-        boundingClientRect: { top, height: 100, bottom: top + 100 },
-      }) as unknown as IntersectionObserverEntry
+    const place = (el: Element, top: number) => {
+      el.getBoundingClientRect = () => ({ top, height: 100, bottom: top + 100 }) as DOMRect
+    }
+    const entry = (target: Element, top: number) => {
+      place(target, top)
+      return { target, isIntersecting: true } as unknown as IntersectionObserverEntry
+    }
     act(() => {
       callback(
         [entry(observed[0], mid - 500), entry(observed[1], mid - 50), entry(observed[2], mid + 400)],

@@ -149,9 +149,9 @@ async function expectColdClicksLandOnTheirSection(browser: Browser, baseURL: str
       const link = page.locator(`nav a[href="#${id}"]`)
       await link.click()
       await expect(link, id).toHaveAttribute('aria-current', 'location')
-      if (id === 'projects') {
-        await expect(page.locator('.featured-project').first()).toHaveAttribute('aria-current', 'true')
-      }
+      // The nav link's aria-current is the real check: it is set from the tour state, so it only
+      // appears once the page has scrolled to the section. (The first project card always shows
+      // aria-current as a display fallback, so asserting it here would prove nothing.)
     } finally {
       await context.close()
     }
@@ -164,4 +164,28 @@ test('a cold click on each nav link right after load ends on its own section', a
 
 test('a cold click on each nav link right after load ends on its own section at 375px', async ({ browser, baseURL }) => {
   await expectColdClicksLandOnTheirSection(browser, baseURL, { width: 375, height: 667 })
+})
+
+test('scrolling through Projects selects every project in order, including side-by-side cards', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 })
+  await page.goto('')
+  await page.locator('nav a[href="#projects"]').click()
+  await expect(page.locator('nav a[href="#projects"]')).toHaveAttribute('aria-current', 'location')
+  await page.evaluate(() => document.querySelector('#projects')!.scrollIntoView({ behavior: 'instant' }))
+  const current = () =>
+    page.evaluate(() => document.querySelector('#projects [aria-current="true"] :is(h3, h4)')?.textContent ?? null)
+  const titles = projects.map((p) => p.title)
+  const seen: string[] = []
+  for (let i = 0; i < 80; i++) {
+    await page.evaluate(
+      () =>
+        new Promise<void>((resolve) => {
+          window.scrollBy(0, 80)
+          requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+        }),
+    )
+    const now = await current()
+    if (now && seen[seen.length - 1] !== now) seen.push(now)
+  }
+  expect(seen).toEqual(titles)
 })
