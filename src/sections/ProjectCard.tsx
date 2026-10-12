@@ -8,6 +8,7 @@ type Props = {
 }
 
 export default function ProjectCard({ project, selected, onSelect }: Props) {
+  const cover = project.media[0]
   return (
     <button
       type="button"
@@ -15,7 +16,7 @@ export default function ProjectCard({ project, selected, onSelect }: Props) {
       aria-pressed={selected}
       onClick={() => onSelect(project.id)}
     >
-      {project.image ? <img src={assetUrl(project.image)} alt="" loading="lazy" /> : null}
+      {cover ? <img src={assetUrl(cover.src)} alt="" loading="lazy" /> : null}
       <span className="project-title">{project.title}</span>
       <span className="chips">
         {project.tags.map((tag) => (

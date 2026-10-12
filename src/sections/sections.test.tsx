@@ -50,8 +50,8 @@ describe('sections', () => {
     expect(within(detail).getByRole('link', { name: /repo/i })).toHaveAttribute('href', project.repoUrl)
   })
 
-  it('a project without an image renders its card without an img element', () => {
-    const project = content.projects.find((p) => p.image === undefined)!
+  it('a project without media renders its card without an img element', () => {
+    const project = content.projects.find((p) => p.media.length === 0)!
     const { container } = render(<ProjectCard project={project} selected={false} onSelect={() => {}} />)
     expect(container.querySelector('img')).toBeNull()
   })
@@ -83,7 +83,10 @@ describe('sections', () => {
 })
 
 describe('project images', () => {
-  const withImage = { ...content.projects[0], image: 'img/x.png' }
+  const withImage = {
+    ...content.projects[0],
+    media: [{ src: 'img/x.png', alt: 'X alt', caption: 'X caption' }],
+  }
 
   it('card image src is built from BASE_URL', () => {
     const { container } = render(<ProjectCard project={withImage} selected={false} onSelect={() => {}} />)

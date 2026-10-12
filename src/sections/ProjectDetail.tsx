@@ -14,7 +14,9 @@ export default function ProjectDetail({ project }: { project: Project }) {
           <li key={tag}>{tag}</li>
         ))}
       </ul>
-      {project.image ? <img src={assetUrl(project.image)} alt={`${project.title} screenshot`} /> : null}
+      {project.media.map((m) => (
+        <img key={m.src} src={assetUrl(m.src)} alt={m.alt} />
+      ))}
       <ul className="links">
         <li>
           <a href={project.repoUrl}>Repository</a>

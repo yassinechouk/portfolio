@@ -2,12 +2,14 @@ import { content } from '../content'
 import { assetUrl } from '../content/assetUrl'
 
 export default function About() {
-  const { bio, links } = content.about
+  const { paragraphs, links } = content.about
   return (
     <section id="about" className="section" aria-labelledby="about-title">
       <div className="panel">
         <h2 id="about-title">About</h2>
-        <p>{bio}</p>
+        {paragraphs.map((text) => (
+          <p key={text}>{text}</p>
+        ))}
         <ul className="links">
           <li>
             <a className="button" href={assetUrl(links.cv)}>
