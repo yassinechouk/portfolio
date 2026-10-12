@@ -312,6 +312,54 @@ describe('project media', () => {
     expect(screen.queryByRole('dialog')).toBeNull()
   })
 
+  it('Escape closes the lightbox after focus moved to body', () => {
+    render(<ProjectDetail project={project} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Enlarge: A caption' }))
+    ;(document.activeElement as HTMLElement).blur()
+    expect(document.body).toHaveFocus()
+    fireEvent.keyDown(document, { key: 'Escape' })
+    expect(screen.queryByRole('dialog')).toBeNull()
+  })
+
+  it('the lightbox is rendered under document.body outside the project detail', () => {
+    render(<ProjectDetail project={project} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Enlarge: A caption' }))
+    const dialog = screen.getByRole('dialog')
+    expect(dialog.closest('.project-detail')).toBeNull()
+    expect(document.body.contains(dialog)).toBe(true)
+  })
+
+  it('body overflow is locked while open and restored after close', () => {
+    document.body.style.overflow = 'scroll'
+    const { unmount } = render(<ProjectDetail project={project} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Enlarge: A caption' }))
+    expect(document.body.style.overflow).toBe('hidden')
+    fireEvent.keyDown(document, { key: 'Escape' })
+    expect(document.body.style.overflow).toBe('scroll')
+    fireEvent.click(screen.getByRole('button', { name: 'Enlarge: A caption' }))
+    unmount()
+    expect(document.body.style.overflow).toBe('scroll')
+    document.body.style.overflow = ''
+  })
+
+  it('the lightbox closes when the active project changes', () => {
+    const { rerender } = render(<ProjectDetail project={project} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Enlarge: A caption' }))
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
+    rerender(<ProjectDetail project={{ ...content.projects[1], media }} />)
+    expect(screen.queryByRole('dialog')).toBeNull()
+  })
+
+  it('focus falls back when the opener has been removed', () => {
+    render(<ProjectDetail project={project} />)
+    const opener = screen.getByRole('button', { name: 'Enlarge: A caption' })
+    opener.focus()
+    fireEvent.click(opener)
+    opener.remove()
+    fireEvent.keyDown(document, { key: 'Escape' })
+    expect(document.activeElement).toBe(document.querySelector('.project-detail h3'))
+  })
+
   it('Experience renders the Qehna image with alt text', () => {
     render(<Experience />)
     const img = screen.getByRole('img', { name: /dead-time|oscilloscope/i })

@@ -4,10 +4,12 @@ import type { Media, Project } from '../content/types'
 import Lightbox from './Lightbox'
 
 export default function ProjectDetail({ project }: { project: Project }) {
-  const [shown, setShown] = useState<Media | null>(null)
+  const [open, setOpen] = useState<{ projectId: string; media: Media } | null>(null)
+  // Derived so a stale image never stays open over a different project.
+  const shown = open && open.projectId === project.id ? open.media : null
   return (
     <section className="project-detail" aria-label="Project details">
-      <h3>{project.title}</h3>
+      <h3 tabIndex={-1}>{project.title}</h3>
       <p>{project.summary}</p>
       <p className="meta">
         Role: <span>{project.role}</span>
@@ -28,7 +30,7 @@ export default function ProjectDetail({ project }: { project: Project }) {
         <div className="gallery">
           {project.media.map((m) => (
             <figure key={m.src} className="gallery-item">
-              <button type="button" className="gallery-button" aria-label={`Enlarge: ${m.caption}`} onClick={() => setShown(m)}>
+              <button type="button" className="gallery-button" aria-label={`Enlarge: ${m.caption}`} onClick={() => setOpen({ projectId: project.id, media: m })}>
                 <img src={assetUrl(m.src)} alt={m.alt} loading="lazy" />
               </button>
               <figcaption className="meta">{m.caption}</figcaption>
@@ -46,7 +48,11 @@ export default function ProjectDetail({ project }: { project: Project }) {
           </li>
         ) : null}
       </ul>
-      <Lightbox item={shown} onClose={() => setShown(null)} />
+      <Lightbox
+        item={shown}
+        onClose={() => setOpen(null)}
+        fallbackFocus={() => document.querySelector<HTMLElement>('.project-detail h3')}
+      />
     </section>
   )
 }

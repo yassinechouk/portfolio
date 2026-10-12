@@ -68,7 +68,7 @@ export default function Projects() {
             </li>
           ))}
         </ul>
-        {active ? <ProjectDetail project={active} /> : <p className="meta">Select a project for details.</p>}
+        {active ? <ProjectDetail key={active.id} project={active} /> : <p className="meta">Select a project for details.</p>}
       </div>
     </section>
   )
